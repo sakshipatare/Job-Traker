@@ -39,7 +39,7 @@ export default function Login() {
                 console.log(localStorage.getItem("userData"));
                 console.log(localStorage.getItem("token"));
 
-                navigate("/dashboard/history");
+                navigate("/dashboard");
             }else{
                 setError(data.message || "Login failed. Please try again.");
             }

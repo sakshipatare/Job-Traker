@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Signup from './components/Auth/Signup';
 import Login from './components/Auth/Login';
 import Home from './components/Home/Home';
+import StudentDashboard from './components/Dashboard/StudentDashboard';
 
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/dashboard" element={<StudentDashboard />} />
         </Routes>
       </BrowserRouter>
     </GoogleOAuthProvider>

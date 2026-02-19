@@ -6,10 +6,18 @@ import companyRoute from "./src/features/companies/company.routes.js";
 import jobRoutes from "./src/features/jobs/job.routes.js";
 import applicationRoute from "./src/features/applications/application.routes.js";
 import dotenv from "dotenv";
+import cors from "cors";
 
 dotenv.config();
 
 const app = express();
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Vite frontend
+    credentials: true,
+  })
+);
+
 
 // Middlewares
 app.use(express.json());

@@ -26,7 +26,13 @@ export default class studentController {
   // 🔹 Update Student Profile
   async updateProfile(req, res) {
   try {
-    const { phone, education, skills } = req.body;
+    const { phone, education } = req.body;
+
+      let skills = [];
+
+      if (req.body.skills) {
+        skills = JSON.parse(req.body.skills);
+      }
 
     const updateData = {
       phone,
