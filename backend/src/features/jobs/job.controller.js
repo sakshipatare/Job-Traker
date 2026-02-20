@@ -1,4 +1,5 @@
 import jobRepo from "./job.repository.js";
+import companyRepo from "../companies/company.repository.js";
 
 export default class jobController {
     constructor() {
@@ -7,9 +8,24 @@ export default class jobController {
 
     async createJob(req, res) {
         try {
-            const data = { ...req.body, company: req.user._id };
+            const companyRepository = new companyRepo();
+
+            // 🔥 Find company by logged-in user
+            const company = await companyRepository.getCompanyByUserId(req.user._id);
+
+            if (!company) {
+                return res.status(404).json({ message: "Company profile not found" });
+            }
+
+            const data = {
+                ...req.body,
+                company: company._id   // 🔥 Correct company ID
+            };
+
             const job = await this.jobRepo.createJob(data);
+
             return res.status(201).json({ message: "Job created", job });
+
         } catch (err) {
             console.error("Create Job Error:", err);
             return res.status(500).json({ message: "Error creating job" });

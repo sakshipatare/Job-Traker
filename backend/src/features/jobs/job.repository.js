@@ -8,11 +8,11 @@ export default class jobRepo {
     }
 
     async getJobs() {
-        return await Job.find().populate("company", "name email");
+        return await Job.find().populate("company");
     }
 
     async getJobById(jobId) {
-        return await Job.findById(jobId).populate("company", "name email");
+        return await Job.findById(jobId).populate("company");
     }
 
     async updateJob(jobId, data) {
