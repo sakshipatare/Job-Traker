@@ -31,7 +31,11 @@ export default class studentController {
       let skills = [];
 
       if (req.body.skills) {
-        skills = JSON.parse(req.body.skills);
+        const parsedSkills = JSON.parse(req.body.skills);
+
+        skills = parsedSkills.map(skill =>
+          skill.replace(/"/g, "").trim()
+        );
       }
 
     const updateData = {

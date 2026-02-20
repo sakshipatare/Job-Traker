@@ -1,5 +1,6 @@
 import applicationRepo from "./application.repository.js";
 import { Student } from "../students/student.schema.js";
+import { Job } from "../jobs/job.schema.js";
 
 export default class applicationController {
 
@@ -7,26 +8,58 @@ export default class applicationController {
     this.appRepo = new applicationRepo();
   }
 
-  // Student applies
+
 async applyJob(req, res) {
   try {
     const { jobId } = req.params;
 
-    //  Find student profile
+    // 1️ Find student profile
     const studentProfile = await Student.findOne({ user: req.user._id });
 
     if (!studentProfile || !studentProfile.resume) {
       return res.status(400).json({ message: "Upload resume first" });
     }
 
+    // 2️⃣ Fetch Job
+    const job = await Job.findById(jobId);
+
+    if (!job) {
+      return res.status(404).json({ message: "Job not found" });
+    }
+
+    // 3️⃣ Compare Skills
+    const jobSkills = job.skills.map(skill => skill.toLowerCase());
+    const studentSkills = studentProfile.skills.map(skill => skill.toLowerCase());
+
+    const matchedSkills = jobSkills.filter(skill =>
+      studentSkills.includes(skill)
+    );
+
+    const matchPercentage = (matchedSkills.length / jobSkills.length) * 100;
+
+    // 4️⃣ Decide Status
+    let status = "pending";
+    if (matchPercentage >= 70) {
+      status = "shortlisted";
+    }
+
+    // 5️⃣ Create Application
     const application = await this.appRepo.createApplication(
       jobId,
       req.user._id,
       studentProfile.resume
     );
 
+    // 6️⃣ Update status if shortlisted
+    if (application.status === "pending") {
+      application.status = status;
+      await application.save();
+    }
+
     return res.status(201).json({
       message: "Applied successfully",
+      matchPercentage,
+      status,
       application
     });
 
@@ -35,7 +68,6 @@ async applyJob(req, res) {
     return res.status(500).json({ message: "Error applying to job" });
   }
 }
-
 
   // Company sees applicants
   async getApplicants(req, res) {
