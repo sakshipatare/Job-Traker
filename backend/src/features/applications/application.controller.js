@@ -28,8 +28,13 @@ async applyJob(req, res) {
     }
 
     // 3️⃣ Compare Skills
-    const jobSkills = job.skills.map(skill => skill.toLowerCase());
-    const studentSkills = studentProfile.skills.map(skill => skill.toLowerCase());
+    const jobSkills = job.skills.map(skill =>
+      skill.toLowerCase().trim()
+    );
+
+    const studentSkills = studentProfile.skills.map(skill =>
+      skill.replace(/"/g, "").toLowerCase().trim()
+    );
 
     const matchedSkills = jobSkills.filter(skill =>
       studentSkills.includes(skill)
@@ -47,14 +52,16 @@ async applyJob(req, res) {
     const application = await this.appRepo.createApplication(
       jobId,
       req.user._id,
-      studentProfile.resume
+      studentProfile.resume,
+      status,
+      matchPercentage
     );
 
     // 6️⃣ Update status if shortlisted
-    if (application.status === "pending") {
-      application.status = status;
-      await application.save();
-    }
+    // if (application.status === "pending") {
+    //   application.status = status;
+    //   await application.save();
+    // }
 
     return res.status(201).json({
       message: "Applied successfully",

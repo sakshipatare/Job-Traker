@@ -23,6 +23,9 @@ const applicationSchema = new mongoose.Schema({
   appliedAt: {
     type: Date,
     default: Date.now
+  },
+  matchPercentage: {
+    type: Number
   }
 });
 

@@ -2,28 +2,31 @@ import { Application } from "./application.schema.js";
 
 export default class applicationRepo {
 
-  async createApplication(jobId, studentId, resumePath) {
+  async createApplication(jobId, studentId, resumePath, status, matchPercentage) {
 
-    // prevent duplicate apply
-    const existing = await Application.findOne({
-      job: jobId,
-      student: studentId
-    });
+  // prevent duplicate apply
+  const existing = await Application.findOne({
+    job: jobId,
+    student: studentId
+  });
 
-    if (existing) return existing;
+  if (existing) return existing;
 
-    const application = new Application({
-      job: jobId,
-      student: studentId,
-      resume: resumePath
-    });
+  const application = new Application({
+    job: jobId,
+    student: studentId,
+    resume: resumePath,
+    status,
+    matchPercentage
+  });
 
-    return await application.save();
-  }
+  return await application.save();
+}
 
   async getApplicationsByJob(jobId) {
     return await Application.find({ job: jobId })
-      .populate("student", "name email resume");
+    .sort({ matchPercentage: -1 })
+    .populate("student", "name email resume");;
   }
 
   async getApplicationsByStudent(studentId) {
