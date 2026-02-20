@@ -38,11 +38,19 @@ export default function Login() {
 
                 console.log(localStorage.getItem("userData"));
                 console.log(localStorage.getItem("token"));
+                console.log("Role:", data.user.role);
 
-                navigate("/dashboard");
-            }else{
-                setError(data.message || "Login failed. Please try again.");
-            }
+                const role = data.user.role;
+
+                if (role === "student") {
+                    navigate("/dashboard");
+                } 
+                else if (role === "company") {
+                    navigate("/company-dashboard");
+                }
+                }else{
+                    setError(data.message || "Login failed. Please try again.");
+                }
 
         } catch (error) {
             console.error("Error during login:", error);
@@ -68,7 +76,14 @@ export default function Login() {
             if (response.ok) {
                 localStorage.setItem("userData", JSON.stringify(data.user));
                 localStorage.setItem("token", data.token);
-                navigate("/dashboard/history");
+                const role = data.user.role;
+
+                if (role === "student") {
+                    navigate("/dashboard");
+                } 
+                else if (role === "company") {
+                    navigate("/company-dashboard");
+                }
             } else {
                 setError(data.message || "Google sign-in failed");
             }

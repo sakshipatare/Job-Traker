@@ -18,4 +18,11 @@ companyRoute.put("/me", authMiddleware, authorizeRole("company"), (req, res) => 
 //  List all companies → Accessible to everyone (students)
 companyRoute.get("/", authMiddleware, authorizeRole("student", "company"), (req, res) => CompanyController.listCompanies(req, res));
 
+companyRoute.get(
+  "/stats",
+  authMiddleware,
+  authorizeRole("company"),
+  (req, res) => CompanyController.getCompanyStats(req, res)
+);
+
 export default companyRoute;

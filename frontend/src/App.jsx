@@ -5,6 +5,7 @@ import Signup from './components/Auth/Signup';
 import Login from './components/Auth/Login';
 import Home from './components/Home/Home';
 import StudentDashboard from './components/Dashboard/StudentDashboard';
+import CompanyDashboard from './components/Dashboard/CompanyDashboard';
 
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<StudentDashboard />} />
+          <Route path="/company-dashboard" element={<CompanyDashboard />} />
         </Routes>
       </BrowserRouter>
     </GoogleOAuthProvider>

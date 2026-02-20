@@ -27,7 +27,7 @@ export default class companyRepo {
             return await Company.findOneAndUpdate(
                 { user: userId },
                 data,
-                { new: true } // always return updated document
+                { returnDocument: "after" } 
             );
         } catch (err) {
             console.error("Error updating company:", err);
