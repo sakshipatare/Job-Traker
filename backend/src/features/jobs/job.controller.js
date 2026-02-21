@@ -34,7 +34,7 @@ export default class jobController {
 
     async getAllJobs(req, res) {
     try {
-        const { page, limit, sortBy, order, search, location, minSalary } = req.query;
+        const { page, limit, sortBy, order, search, title, location, minSalary } = req.query;
 
         const filters = {};
 
@@ -51,6 +51,17 @@ export default class jobController {
                 filters.$or.push({ salary: Number(search) });
             }
         }
+        
+        //  Text Search (if text index is used)
+
+        // if (search) {
+        //     filters.$text = { $search: search };
+        // }
+
+        if (title) {
+            filters.title = { $regex: title, $options: "i" };
+        }
+
         //  Filter by location
         if (location) {
             filters.location = { $regex: location, $options: "i" };

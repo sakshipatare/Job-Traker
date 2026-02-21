@@ -28,7 +28,7 @@ const Apply = () => {
       setLoading(true);
 
       const response = await fetch(
-        `http://localhost:5000/jobs?page=${page}&limit=${limit}&search=${searchTerm}&location=${filters.location}&minSalary=${filters.minSalary}&sortBy=createdAt&order=desc`,
+        `http://localhost:5000/jobs?page=${page}&limit=${limit}&search=${searchTerm}&title=${filters.title}&location=${filters.location}&minSalary=${filters.minSalary}&sortBy=createdAt&order=desc`,
         {
           headers: { Authorization: `Bearer ${token}` }
         }

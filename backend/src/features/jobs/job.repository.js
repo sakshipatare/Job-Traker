@@ -32,19 +32,19 @@ export default class jobRepo {
         limit = 10,
         sortBy = "createdAt",
         order = "desc",
-        filters = {}        // ✅ NEW
+        filters = {}
     }) {
         const skip = (page - 1) * limit;
         const sortOrder = order === "asc" ? 1 : -1;
 
-        // ✅ Use filters
         const jobs = await Job.find(filters)
-            .populate("company")
+            .select("title location salary company createdAt")
+            .populate("company", "name")
             .sort({ [sortBy]: sortOrder })
             .skip(skip)
-            .limit(limit);
+            .limit(limit)
+            .lean();   //  optimization
 
-        // ✅ Count with filters
         const total = await Job.countDocuments(filters);
 
         return {

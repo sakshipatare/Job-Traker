@@ -14,6 +14,18 @@ const jobSchema = new mongoose.Schema({
     updatedAt: { type: Date, default: Date.now }
 });
 
+//Query Optimization
+jobSchema.index({ createdAt: -1 });
+jobSchema.index({ company: 1 });
+jobSchema.index({ salary: 1 });
+
+// //  Text Index for fast search
+// jobSchema.index({
+//    title: "text",
+//    location: "text",
+//    description: "text"
+// });
+
 jobSchema.pre("save", function () {
   this.createdAt = new Date();
 });
