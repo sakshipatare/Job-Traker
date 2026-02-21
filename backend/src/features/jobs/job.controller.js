@@ -100,22 +100,89 @@ export default class jobController {
     }
 
     async updateJob(req, res) {
-        try {
-            const job = await this.jobRepo.updateJob(req.params.jobId, req.body);
-            return res.status(200).json({ message: "Job updated", job });
-        } catch (err) {
-            console.error("Update Job Error:", err);
-            return res.status(500).json({ message: "Error updating job" });
+    try {
+        const companyRepository = new companyRepo();
+        const company = await companyRepository.getCompanyByUserId(req.user._id);
+
+        if (!company) {
+            return res.status(404).json({ message: "Company not found" });
         }
+
+        const job = await this.jobRepo.getJobById(req.params.jobId);
+
+        if (!job) {
+            return res.status(404).json({ message: "Job not found" });
+        }
+
+        // 🔥 Check ownership
+        if (job.company._id.toString() !== company._id.toString()) {
+            return res.status(403).json({ message: "Unauthorized" });
+        }
+
+        const updatedJob = await this.jobRepo.updateJob(
+            req.params.jobId,
+            req.body
+        );
+
+        return res.status(200).json({
+            message: "Job updated successfully",
+            job: updatedJob
+        });
+
+    } catch (err) {
+        console.error("Update Job Error:", err);
+        return res.status(500).json({ message: "Error updating job" });
     }
+}
 
     async deleteJob(req, res) {
-        try {
-            await this.jobRepo.deleteJob(req.params.jobId);
-            return res.status(200).json({ message: "Job deleted" });
-        } catch (err) {
-            console.error("Delete Job Error:", err);
-            return res.status(500).json({ message: "Error deleting job" });
+    try {
+        const companyRepository = new companyRepo();
+        const company = await companyRepository.getCompanyByUserId(req.user._id);
+
+        if (!company) {
+            return res.status(404).json({ message: "Company not found" });
         }
+
+        const job = await this.jobRepo.getJobById(req.params.jobId);
+
+        if (!job) {
+            return res.status(404).json({ message: "Job not found" });
+        }
+
+        if (job.company._id.toString() !== company._id.toString()) {
+            return res.status(403).json({ message: "Unauthorized" });
+        }
+
+        await this.jobRepo.deleteJob(req.params.jobId);
+
+        return res.status(200).json({ message: "Job deleted successfully" });
+
+    } catch (err) {
+        console.error("Delete Job Error:", err);
+        return res.status(500).json({ message: "Error deleting job" });
     }
+}
+
+    async getCompanyJobs(req, res) {
+    try {
+        const companyRepository = new companyRepo();
+
+        // 🔥 Get company profile of logged-in user
+        const company = await companyRepository.getCompanyByUserId(req.user._id);
+
+        if (!company) {
+            return res.status(404).json({ message: "Company not found" });
+        }
+
+        // 🔥 Get only jobs of this company
+        const jobs = await this.jobRepo.getJobsByCompany(company._id);
+
+        return res.status(200).json(jobs);
+
+    } catch (err) {
+        console.error("Get Company Jobs Error:", err);
+        return res.status(500).json({ message: "Error fetching company jobs" });
+    }
+}
 }

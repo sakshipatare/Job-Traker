@@ -21,4 +21,12 @@ jobRoutes.put("/:jobId", authMiddleware, authorizeRole("company"), (req, res) =>
 // Company deletes job
 jobRoutes.delete("/:jobId", authMiddleware, authorizeRole("company"), (req, res) => JobController.deleteJob(req, res));
 
+// Get jobs of logged-in company
+jobRoutes.get(
+  "/company/my-jobs",
+  authMiddleware,
+  authorizeRole("company"),
+  (req, res) => JobController.getCompanyJobs(req, res)
+);
+
 export default jobRoutes;

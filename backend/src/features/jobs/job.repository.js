@@ -16,15 +16,15 @@ export default class jobRepo {
     }
 
     async updateJob(jobId, data) {
-        return await Job.findByIdAndUpdate(jobId, data, { new: true });
+        return await Job.findByIdAndUpdate(
+            jobId,
+            { $set: data },
+            { returnDocument: "after" }
+        );
     }
 
     async deleteJob(jobId) {
         return await Job.findByIdAndDelete(jobId);
-    }
-
-    async getJobsByCompany(companyId) {
-        return await Job.find({ company: companyId });
     }
 
     async getJobsWithPagination({
@@ -54,4 +54,10 @@ export default class jobRepo {
             totalPages: Math.ceil(total / limit)
         };
     }
+
+    async getJobsByCompany(companyId) {
+    return await Job.find({ company: companyId })
+        .populate("company", "name location website")
+        .sort({ createdAt: -1 });
+}
 }

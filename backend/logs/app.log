@@ -26,3 +26,21 @@
 {"ip":"::1","level":"info","message":"Incoming request","method":"GET","timestamp":"2026-02-21T07:29:10.243Z","url":"/students/profile"}
 {"email":"sakshipatare300@gmail.com","level":"info","message":"SignIn attempt","timestamp":"2026-02-21T07:32:54.293Z"}
 {"email":"sakshipatare300@gmail.com","level":"info","message":"User logged in successfully","role":"student","timestamp":"2026-02-21T07:32:55.173Z"}
+{"email":"sakshipatare03@gmail.com","level":"info","message":"SignIn attempt","timestamp":"2026-02-21T09:01:52.697Z"}
+{"email":"sakshipatare03@gmail.com","level":"info","message":"User logged in successfully","role":"company","timestamp":"2026-02-21T09:01:53.080Z"}
+{"email":"sakshipatare300@gmai.com","level":"info","message":"SignIn attempt","timestamp":"2026-02-21T09:45:39.721Z"}
+{"email":"sakshipatare300@gmai.com","level":"warn","message":"Login failed - user not found","timestamp":"2026-02-21T09:45:39.729Z"}
+{"email":"sakshipatare300@gmail.com","level":"info","message":"SignIn attempt","timestamp":"2026-02-21T09:46:04.297Z"}
+{"email":"sakshipatare300@gmail.com","level":"info","message":"User logged in successfully","role":"student","timestamp":"2026-02-21T09:46:04.639Z"}
+{"email":"sakshipatare03@gmail.com","level":"info","message":"SignIn attempt","timestamp":"2026-02-21T09:46:40.295Z"}
+{"email":"sakshipatare03@gmail.com","level":"info","message":"User logged in successfully","role":"company","timestamp":"2026-02-21T09:46:40.619Z"}
+{"email":"sakshipatare300@gmail.com","level":"info","message":"SignIn attempt","timestamp":"2026-02-21T10:15:37.618Z"}
+{"email":"sakshipatare300@gmail.com","level":"info","message":"User logged in successfully","role":"student","timestamp":"2026-02-21T10:15:38.007Z"}
+{"email":"sakshipatare03@gmail.com","level":"info","message":"SignIn attempt","timestamp":"2026-02-21T10:18:59.300Z"}
+{"email":"sakshipatare03@gmail.com","level":"info","message":"User logged in successfully","role":"company","timestamp":"2026-02-21T10:18:59.637Z"}
+{"email":"sakshipatare03@gmail.com","level":"info","message":"SignIn attempt","timestamp":"2026-02-21T10:26:33.915Z"}
+{"email":"sakshipatare03@gmail.com","level":"info","message":"User logged in successfully","role":"company","timestamp":"2026-02-21T10:26:34.280Z"}
+{"email":"sakshipatare300@gmail.com","level":"info","message":"SignIn attempt","timestamp":"2026-02-21T10:27:42.730Z"}
+{"email":"sakshipatare300@gmail.com","level":"info","message":"User logged in successfully","role":"student","timestamp":"2026-02-21T10:27:43.044Z"}
+{"email":"sakshipatare03@gmail.com","level":"info","message":"SignIn attempt","timestamp":"2026-02-21T10:51:49.451Z"}
+{"email":"sakshipatare03@gmail.com","level":"info","message":"User logged in successfully","role":"company","timestamp":"2026-02-21T10:51:49.773Z"}
