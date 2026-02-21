@@ -8,22 +8,40 @@ const Apply = () => {
   const [message, setMessage] = useState("");
   const [appliedJobs, setAppliedJobs] = useState(new Set());
   const token = localStorage.getItem("token");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 6; // jobs per page
 
   useEffect(() => {
     fetchJobs();
-  }, []);
+  }, [page]);
 
   const fetchJobs = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:5000/jobs", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+
+      const response = await fetch(
+        `http://localhost:5000/jobs?page=${page}&limit=${limit}&sortBy=createdAt&order=desc`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       const data = await response.json();
-      if (response.ok) setJobs(data);
+
+      if (response.ok) {
+        if (Array.isArray(data)) {
+          // backend not updated yet
+          setJobs(data);
+          setTotalPages(1);
+        } else {
+          // paginated response
+          setJobs(data.jobs || []);
+          setTotalPages(data.totalPages || 1);
+        }
+      }
     } catch (error) {
       console.error("Error fetching jobs:", error);
       setMessage({ type: "error", text: "Failed to load jobs" });
@@ -208,6 +226,31 @@ const Apply = () => {
           <div className="text-center py-16">
             <Briefcase className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-600 text-lg font-medium">No jobs available at the moment</p>
+          </div>
+        )}
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center gap-4 mt-10">
+            <button
+              onClick={() => setPage(prev => Math.max(prev - 1, 1))}
+              disabled={page === 1}
+              className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50"
+            >
+              Previous
+            </button>
+
+            <span className="font-semibold text-gray-700">
+              Page {page} of {totalPages}
+            </span>
+
+            <button
+              onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={page === totalPages}
+              className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50"
+            >
+              Next
+            </button>
           </div>
         )}
       </div>

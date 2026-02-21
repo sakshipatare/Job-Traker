@@ -24,4 +24,12 @@ studentRouter.put(
   (req, res) => StudentController.updateProfile(req, res)
 );
 
+// 🔹 Student Dashboard Stats
+studentRouter.get(
+  "/stats",
+  authMiddleware,
+  authorizeRole("student"),
+  (req, res) => StudentController.getStudentStats(req, res)
+);
+
 export default studentRouter;

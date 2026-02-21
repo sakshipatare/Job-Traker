@@ -34,8 +34,16 @@ export default class jobController {
 
     async getAllJobs(req, res) {
         try {
-            const jobs = await this.jobRepo.getJobs();
-            return res.status(200).json(jobs);
+            const { page, limit, sortBy, order } = req.query;
+
+            const data = await this.jobRepo.getJobsWithPagination({
+                page: parseInt(page) || 1,
+                limit: parseInt(limit) || 10,
+                sortBy: sortBy || "createdAt",
+                order: order || "desc"
+            });
+
+            return res.status(200).json(data);
         } catch (err) {
             console.error("Get Jobs Error:", err);
             return res.status(500).json({ message: "Error fetching jobs" });

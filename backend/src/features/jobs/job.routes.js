@@ -10,7 +10,7 @@ const JobController = new jobController();
 jobRoutes.post("/", authMiddleware, authorizeRole("company"), (req, res) => JobController.createJob(req, res));
 
 // Get all jobs (for students)
-jobRoutes.get("/", authMiddleware, authorizeRole("student"), (req, res) => JobController.getAllJobs(req, res));
+jobRoutes.get("/", authMiddleware, authorizeRole("student", "company"), (req, res) => JobController.getAllJobs(req, res));
 
 // Get single job
 jobRoutes.get("/:jobId", authMiddleware, (req, res) => JobController.getJob(req, res));

@@ -26,4 +26,24 @@ export default class jobRepo {
     async getJobsByCompany(companyId) {
         return await Job.find({ company: companyId });
     }
+
+    async getJobsWithPagination({ page = 1, limit = 10, sortBy = "createdAt", order = "desc" }) {
+    const skip = (page - 1) * limit;
+    const sortOrder = order === "asc" ? 1 : -1;
+
+    const jobs = await Job.find()
+        .populate("company")
+        .sort({ [sortBy]: sortOrder })
+        .skip(skip)
+        .limit(limit);
+
+    const total = await Job.countDocuments();
+
+    return {
+        jobs,
+        total,
+        page,
+        totalPages: Math.ceil(total / limit)
+    };
+}
 }

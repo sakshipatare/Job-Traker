@@ -6,6 +6,7 @@ const Status = () => {
   const [applications, setApplications] = useState([]);
   const [selectedJob, setSelectedJob] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState(null);
 
   const token = localStorage.getItem("token");
 
@@ -14,30 +15,41 @@ const Status = () => {
   }, []);
 
   const fetchData = async () => {
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      const jobsRes = await fetch("http://localhost:5000/jobs", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+    const jobsRes = await fetch("http://localhost:5000/jobs", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-      const jobsData = await jobsRes.json();
+    const appRes = await fetch("http://localhost:5000/applications/me", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-      const appRes = await fetch("http://localhost:5000/applications/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+    const statsRes = await fetch("http://localhost:5000/students/stats", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-      const appData = await appRes.json();
+    const jobsData = await jobsRes.json();
+    const appData = await appRes.json();
+    const statsData = await statsRes.json();
 
-      if (jobsRes.ok) setJobs(jobsData);
-      if (appRes.ok) setApplications(appData);
-
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setLoading(false);
+    if (jobsRes.ok) {
+      if (Array.isArray(jobsData)) {
+        setJobs(jobsData);           // old format
+      } else {
+        setJobs(jobsData.jobs || []); // new paginated format
+      }
     }
-  };
+    if (appRes.ok) setApplications(appData);
+    if (statsRes.ok) setStats(statsData);
+
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const getStatusConfig = (status) => {
     const configs = {
@@ -92,12 +104,12 @@ const Status = () => {
     applications.some((app) => app.job === job._id || app.job?._id === job._id)
   );
 
-  const stats = [
-    { label: "Total Applications", value: appliedJobs.length, color: "from-blue-500 to-cyan-500" },
-    { label: "Selected", value: applications.filter(a => a.status === "selected").length, color: "from-emerald-500 to-teal-500" },
-    { label: "Pending", value: applications.filter(a => a.status === "pending").length, color: "from-yellow-500 to-amber-500" },
-    { label: "Rejected", value: applications.filter(a => a.status === "rejected").length, color: "from-red-500 to-rose-500" }
-  ];
+  // const stats = [
+  //   { label: "Total Applications", value: appliedJobs.length, color: "from-blue-500 to-cyan-500" },
+  //   { label: "Selected", value: applications.filter(a => a.status === "selected").length, color: "from-emerald-500 to-teal-500" },
+  //   { label: "Pending", value: applications.filter(a => a.status === "pending").length, color: "from-yellow-500 to-amber-500" },
+  //   { label: "Rejected", value: applications.filter(a => a.status === "rejected").length, color: "from-red-500 to-rose-500" }
+  // ];
 
   return (
     <div className="py-4">
@@ -111,19 +123,37 @@ const Status = () => {
         </div>
 
         {/* Stats Grid */}
-        {appliedJobs.length > 0 && (
+        {stats && stats.totalApplications > 0 && (
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {stats.map((stat, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-shadow"
-              >
-                <div className={`text-4xl font-bold bg-gradient-to-r ${stat.color} bg-clip-text text-transparent mb-2`}>
-                  {stat.value}
-                </div>
-                <p className="text-gray-600 font-medium">{stat.label}</p>
+
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+              <div className="text-4xl font-bold text-blue-600 mb-2">
+                {stats.totalApplications}
               </div>
-            ))}
+              <p className="text-gray-600 font-medium">Total Applications</p>
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+              <div className="text-4xl font-bold text-emerald-600 mb-2">
+                {stats.selectedApplications || 0}
+              </div>
+              <p className="text-gray-600 font-medium">Selected</p>
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+              <div className="text-4xl font-bold text-yellow-600 mb-2">
+                {stats.pendingApplications || 0}
+              </div>
+              <p className="text-gray-600 font-medium">Pending</p>
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+              <div className="text-4xl font-bold text-red-600 mb-2">
+                {stats.rejectedApplications || 0}
+              </div>
+              <p className="text-gray-600 font-medium">Rejected</p>
+            </div>
+
           </div>
         )}
 
@@ -178,7 +208,11 @@ const Status = () => {
                     {/* Applied Date */}
                     <div className="flex items-center space-x-2 text-sm text-gray-500">
                       <Calendar className="w-4 h-4" />
-                      <span>{new Date(application?.appliedAt).toLocaleDateString()}</span>
+                      <span>
+                        {application?.appliedAt
+                          ? new Date(application.appliedAt).toLocaleDateString()
+                          : "N/A"}
+                      </span>
                     </div>
                   </div>
 

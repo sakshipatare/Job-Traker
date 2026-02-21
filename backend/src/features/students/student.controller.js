@@ -1,10 +1,53 @@
 import studentRepo from "./student.repository.js";
+import { Application } from "../applications/application.schema.js";
 
 export default class studentController {
 
   constructor() {
     this.studentRepo = new studentRepo();
   }
+
+async getStudentStats(req, res) {
+  try {
+    const userId = req.user._id;
+
+    const totalApplications = await Application.countDocuments({
+      student: userId
+    });
+
+    const selectedApplications = await Application.countDocuments({
+      student: userId,
+      status: "selected"
+    });
+
+    const rejectedApplications = await Application.countDocuments({
+      student: userId,
+      status: "rejected"
+    });
+
+    const pendingApplications = await Application.countDocuments({
+      student: userId,
+      status: "pending"
+    });
+
+    const shortlistedApplications = await Application.countDocuments({
+      student: userId,
+      status: "shortlisted"
+    });
+
+    return res.status(200).json({
+      totalApplications,
+      selectedApplications,
+      rejectedApplications,
+      pendingApplications,
+      shortlistedApplications
+    });
+
+  } catch (error) {
+    console.error("Student Stats Error:", error);
+    return res.status(500).json({ message: "Error fetching dashboard stats" });
+  }
+}
 
   // 🔹 Get Student Profile
   async getProfile(req, res) {
