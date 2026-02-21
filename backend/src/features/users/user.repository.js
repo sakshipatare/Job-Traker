@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { userSchema } from "./user.schema.js";
+import logger from "../../utils/logger.js";
 
 export const userModel = mongoose.model('User', userSchema);
 
@@ -17,7 +18,10 @@ export default class userRepo {
         return newUser; // 🔥 return actual user document
 
     } catch (err) {
-        console.log("Creating user error:", err);
+        logger.error({
+            message: "Error creating user",
+            error: err.message,
+        });
         throw err; // let controller handle error
     }
 }
@@ -25,7 +29,7 @@ export default class userRepo {
 
     async getUserByEmail(email){
         try{
-            return await userModel.findOne({ email });
+            return await userModel.findOne({ email }).lean();
         }catch(err){
             console.log("Error! Getting user by email", err);
             return { message: "Error! Getting user by email", status: 500};

@@ -1,0 +1,28 @@
+{"ip":"::1","level":"info","message":"Incoming request","method":"OPTIONS","timestamp":"2026-02-21T07:28:35.414Z","url":"/users/signin"}
+{"ip":"::1","level":"info","message":"Incoming request","method":"POST","timestamp":"2026-02-21T07:28:35.441Z","url":"/users/signin"}
+{"email":"sakshipatare300@gmail.com","level":"info","message":"SignIn attempt","timestamp":"2026-02-21T07:28:35.493Z"}
+{"email":"sakshipatare300@gmail.com","level":"info","message":"User logged in successfully","role":"student","timestamp":"2026-02-21T07:28:36.527Z"}
+{"ip":"::1","level":"info","message":"Incoming request","method":"OPTIONS","timestamp":"2026-02-21T07:28:36.572Z","url":"/students/profile"}
+{"ip":"::1","level":"info","message":"Incoming request","method":"OPTIONS","timestamp":"2026-02-21T07:28:36.575Z","url":"/students/profile"}
+{"ip":"::1","level":"info","message":"Incoming request","method":"GET","timestamp":"2026-02-21T07:28:36.576Z","url":"/students/profile"}
+{"ip":"::1","level":"info","message":"Incoming request","method":"GET","timestamp":"2026-02-21T07:28:36.627Z","url":"/students/profile"}
+{"ip":"::1","level":"info","message":"Incoming request","method":"OPTIONS","timestamp":"2026-02-21T07:29:07.714Z","url":"/jobs?page=1&limit=6&search=&title=&location=&minSalary=&sortBy=createdAt&order=desc"}
+{"ip":"::1","level":"info","message":"Incoming request","method":"OPTIONS","timestamp":"2026-02-21T07:29:07.719Z","url":"/jobs?page=1&limit=6&search=&title=&location=&minSalary=&sortBy=createdAt&order=desc"}
+{"ip":"::1","level":"info","message":"Incoming request","method":"GET","timestamp":"2026-02-21T07:29:07.729Z","url":"/jobs?page=1&limit=6&search=&title=&location=&minSalary=&sortBy=createdAt&order=desc"}
+{"ip":"::1","level":"info","message":"Incoming request","method":"GET","timestamp":"2026-02-21T07:29:07.788Z","url":"/jobs?page=1&limit=6&search=&title=&location=&minSalary=&sortBy=createdAt&order=desc"}
+{"ip":"::1","level":"info","message":"Incoming request","method":"OPTIONS","timestamp":"2026-02-21T07:29:09.319Z","url":"/jobs"}
+{"ip":"::1","level":"info","message":"Incoming request","method":"OPTIONS","timestamp":"2026-02-21T07:29:09.329Z","url":"/jobs"}
+{"ip":"::1","level":"info","message":"Incoming request","method":"GET","timestamp":"2026-02-21T07:29:09.334Z","url":"/jobs"}
+{"ip":"::1","level":"info","message":"Incoming request","method":"GET","timestamp":"2026-02-21T07:29:09.385Z","url":"/jobs"}
+{"ip":"::1","level":"info","message":"Incoming request","method":"OPTIONS","timestamp":"2026-02-21T07:29:09.388Z","url":"/applications/me"}
+{"ip":"::1","level":"info","message":"Incoming request","method":"GET","timestamp":"2026-02-21T07:29:09.395Z","url":"/applications/me"}
+{"ip":"::1","level":"info","message":"Incoming request","method":"GET","timestamp":"2026-02-21T07:29:09.426Z","url":"/applications/me"}
+{"ip":"::1","level":"info","message":"Incoming request","method":"OPTIONS","timestamp":"2026-02-21T07:29:09.431Z","url":"/students/stats"}
+{"ip":"::1","level":"info","message":"Incoming request","method":"GET","timestamp":"2026-02-21T07:29:09.436Z","url":"/students/stats"}
+{"ip":"::1","level":"info","message":"Incoming request","method":"GET","timestamp":"2026-02-21T07:29:09.463Z","url":"/students/stats"}
+{"ip":"::1","level":"info","message":"Incoming request","method":"OPTIONS","timestamp":"2026-02-21T07:29:10.215Z","url":"/students/profile"}
+{"ip":"::1","level":"info","message":"Incoming request","method":"OPTIONS","timestamp":"2026-02-21T07:29:10.217Z","url":"/students/profile"}
+{"ip":"::1","level":"info","message":"Incoming request","method":"GET","timestamp":"2026-02-21T07:29:10.220Z","url":"/students/profile"}
+{"ip":"::1","level":"info","message":"Incoming request","method":"GET","timestamp":"2026-02-21T07:29:10.243Z","url":"/students/profile"}
+{"email":"sakshipatare300@gmail.com","level":"info","message":"SignIn attempt","timestamp":"2026-02-21T07:32:54.293Z"}
+{"email":"sakshipatare300@gmail.com","level":"info","message":"User logged in successfully","role":"student","timestamp":"2026-02-21T07:32:55.173Z"}

@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import logger from "../../utils/logger.js";
 import userRepo from './user.repository.js';
 import bcrypt from 'bcryptjs';
 import { sendVerificationEmail, sendResetPasswordEmail } from '../../utils/sendEmail.js';
@@ -33,7 +34,7 @@ export default class userController {
             return res.status(400).json({ message: "Email already exists" });
         }
 
-        // 🔥 Auto create student profile
+        //  Auto create student profile
         if (role === "student") {
             await Student.create({ user: newUser._id });
         }
@@ -43,12 +44,21 @@ export default class userController {
 
         await sendVerificationEmail(email, token);
 
+        logger.info({
+            message: "User registered successfully",
+            email,
+            role
+        });
+
         return res.status(201).json({
             message: "Verification email sent!"
         });
 
     } catch (err) {
-        console.log("Controller signUp err:", err);
+        logger.error({
+            message: "SignUp controller error",
+            error: err.message,
+        });
         return res.status(500).json({ message: "Error in signing up user" });
     }
 }
@@ -56,18 +66,29 @@ export default class userController {
 
     async signIn(req, res, next){
         try{
-            console.log("SignIn Request Body: ", req.body);
+            logger.info({
+                message: "SignIn attempt",
+                email: req.body.email
+            });
             const { email, password } = req.body;
             const user = await this.userRepo.signIn(email);
 
             console.log("User from DB: ", user); //  Safe now
             if (!user) {
+                logger.warn({
+                    message: "Login failed - user not found",
+                    email
+                });
                 return res.status(401).json({message: 'Invalid email or password.'});
             }
 
-            console.log("Stored Pass: ", user.password); //  Safe now
+            // console.log("Stored Pass: ", user.password); //  Safe now
 
             if (!user.password) {
+                logger.warn({
+                    message: "Login failed - incorrect password",
+                    email
+                });
                 return res.status(401).json({message: 'Invalid email or password.'});
             }
 
@@ -93,12 +114,21 @@ export default class userController {
                 // Remove password from user object before sending
                 const { password, ...userWithoutPassword } = user._doc;
 
+                logger.info({
+                    message: "User logged in successfully",
+                    email: user.email,
+                    role: user.role
+                });
+
                 return res.status(200).json({message: 'User logged in successfully', token, user: userWithoutPassword, });
             }else{
                 return res.status(401).json({message: 'Invalid email or password..'});
             }
         }catch(err){
-            console.log("Controller signIn err:", err);
+            logger.error({
+                message: "SignIn controller error",
+                error: err.message,
+            });
             return res.status(500).json({message: 'Error signing in user'});
         }
     }
@@ -145,7 +175,10 @@ export default class userController {
       res.json({ token: jwtToken, user: userWithoutPassword });
 
     } catch (err) {
-      console.error("Google Sign-In error:", err);
+      logger.error({
+        message: "Google Sign-In error",
+        error: err.message,
+    });
       res.status(401).json({ message: "Invalid Google token" });
     }
   }
@@ -187,7 +220,10 @@ export default class userController {
             });
 
         } catch (err) {
-            console.error("Forgot password error:", err);
+            logger.error({
+                message: "Forgot password error",
+                error: err.message,
+            });
             return res.status(500).json({ message: "Error sending reset link" });
         }
     }

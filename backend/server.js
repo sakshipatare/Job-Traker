@@ -7,10 +7,56 @@ import jobRoutes from "./src/features/jobs/job.routes.js";
 import applicationRoute from "./src/features/applications/application.routes.js";
 import dotenv from "dotenv";
 import cors from "cors";
+import swaggerUi from "swagger-ui-express";
+import swaggerJsdoc from "swagger-jsdoc";
+// import logger from "./src/utils/logger.js";
 
 dotenv.config();
 
 const app = express();
+
+// Swagger Configuration
+const options = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Job Tracker API",
+      version: "1.0.0",
+      description: "API documentation for Job Tracking Application",
+    },
+    servers: [
+      {
+        url: "http://localhost:5000",
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT"
+        }
+      }
+    },
+  },
+  apis: ["./src/features/**/*.js"], // This tells Swagger where to read comments
+};
+
+const specs = swaggerJsdoc(options);
+
+// Swagger Route
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
+
+// app.use((req, res, next) => {
+//     logger.info({
+//         message: "Incoming request",
+//         method: req.method,
+//         url: req.url,
+//         ip: req.ip
+//     });
+//     next();
+// });
+
 app.use(
   cors({
     origin: "http://localhost:5173", // Vite frontend
