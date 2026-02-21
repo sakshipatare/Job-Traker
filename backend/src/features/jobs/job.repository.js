@@ -27,23 +27,31 @@ export default class jobRepo {
         return await Job.find({ company: companyId });
     }
 
-    async getJobsWithPagination({ page = 1, limit = 10, sortBy = "createdAt", order = "desc" }) {
-    const skip = (page - 1) * limit;
-    const sortOrder = order === "asc" ? 1 : -1;
+    async getJobsWithPagination({
+        page = 1,
+        limit = 10,
+        sortBy = "createdAt",
+        order = "desc",
+        filters = {}        // ✅ NEW
+    }) {
+        const skip = (page - 1) * limit;
+        const sortOrder = order === "asc" ? 1 : -1;
 
-    const jobs = await Job.find()
-        .populate("company")
-        .sort({ [sortBy]: sortOrder })
-        .skip(skip)
-        .limit(limit);
+        // ✅ Use filters
+        const jobs = await Job.find(filters)
+            .populate("company")
+            .sort({ [sortBy]: sortOrder })
+            .skip(skip)
+            .limit(limit);
 
-    const total = await Job.countDocuments();
+        // ✅ Count with filters
+        const total = await Job.countDocuments(filters);
 
-    return {
-        jobs,
-        total,
-        page,
-        totalPages: Math.ceil(total / limit)
-    };
-}
+        return {
+            jobs,
+            total,
+            page,
+            totalPages: Math.ceil(total / limit)
+        };
+    }
 }

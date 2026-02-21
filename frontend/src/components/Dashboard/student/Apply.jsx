@@ -11,21 +11,26 @@ const Apply = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const limit = 6; // jobs per page
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filters, setFilters] = useState({
+    title: "",
+    location: "",
+    minSalary: ""
+  });
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     fetchJobs();
-  }, [page]);
+  }, [page, searchTerm, filters]);
 
   const fetchJobs = async () => {
     try {
       setLoading(true);
 
       const response = await fetch(
-        `http://localhost:5000/jobs?page=${page}&limit=${limit}&sortBy=createdAt&order=desc`,
+        `http://localhost:5000/jobs?page=${page}&limit=${limit}&search=${searchTerm}&location=${filters.location}&minSalary=${filters.minSalary}&sortBy=createdAt&order=desc`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` }
         }
       );
 
@@ -77,16 +82,16 @@ const Apply = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Loading opportunities...</p>
-        </div>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="flex items-center justify-center py-12">
+  //       <div className="text-center">
+  //         <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+  //         <p className="text-gray-600 font-medium">Loading opportunities...</p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="py-4">
@@ -119,8 +124,81 @@ const Apply = () => {
           </div>
         )}
 
+        {/* Search Section */}
+        <div className="bg-white p-6 rounded-2xl shadow-md mb-8 border border-gray-100">
+
+          <div className="flex gap-4 items-center">
+
+            {/* Global Search */}
+            <input
+              type="text"
+              placeholder="Search jobs (title, location, salary)..."
+              value={searchTerm}
+              onChange={(e) => {
+                setPage(1);
+                setSearchTerm(e.target.value);
+              }}
+              className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+
+            {/* Filter Icon Button */}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg font-semibold"
+            >
+              ⚙ Filters
+            </button>
+
+          </div>
+
+          {/* Advanced Filters */}
+          {showFilters && (
+            <div className="grid md:grid-cols-3 gap-4 mt-4">
+
+              <input
+                type="text"
+                placeholder="Title"
+                value={filters.title}
+                onChange={(e) => {
+                  setPage(1);
+                  setFilters({ ...filters, title: e.target.value });
+                }}
+                className="px-4 py-2 border rounded-lg"
+              />
+
+              <input
+                type="text"
+                placeholder="Location"
+                value={filters.location}
+                onChange={(e) => {
+                  setPage(1);
+                  setFilters({ ...filters, location: e.target.value });
+                }}
+                className="px-4 py-2 border rounded-lg"
+              />
+
+              <input
+                type="number"
+                placeholder="Minimum Salary"
+                value={filters.minSalary}
+                onChange={(e) => {
+                  setPage(1);
+                  setFilters({ ...filters, minSalary: e.target.value });
+                }}
+                className="px-4 py-2 border rounded-lg"
+              />
+
+            </div>
+          )}
+</div>
+
         {/* Jobs Grid */}
-        {jobs.length > 0 ? (
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <Loader className="animate-spin w-8 h-8 text-blue-600" />
+          </div>
+        ) :
+        jobs.length > 0 ? (
           <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {jobs.map((job) => (
               <div

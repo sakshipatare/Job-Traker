@@ -33,22 +33,49 @@ export default class jobController {
     }
 
     async getAllJobs(req, res) {
-        try {
-            const { page, limit, sortBy, order } = req.query;
+    try {
+        const { page, limit, sortBy, order, search, location, minSalary } = req.query;
 
-            const data = await this.jobRepo.getJobsWithPagination({
-                page: parseInt(page) || 1,
-                limit: parseInt(limit) || 10,
-                sortBy: sortBy || "createdAt",
-                order: order || "desc"
-            });
+        const filters = {};
 
-            return res.status(200).json(data);
-        } catch (err) {
-            console.error("Get Jobs Error:", err);
-            return res.status(500).json({ message: "Error fetching jobs" });
+        //  Search by title
+        //  Global Search (title + location + salary)
+        if (search) {
+            filters.$or = [
+                { title: { $regex: search, $options: "i" } },
+                { location: { $regex: search, $options: "i" } }
+            ];
+
+            // If search is numeric → also match salary
+            if (!isNaN(search)) {
+                filters.$or.push({ salary: Number(search) });
+            }
         }
+        //  Filter by location
+        if (location) {
+            filters.location = { $regex: location, $options: "i" };
+        }
+
+        //  Filter by minimum salary
+        if (minSalary) {
+            filters.salary = { $gte: Number(minSalary) };
+        }
+
+        const data = await this.jobRepo.getJobsWithPagination({
+            page: parseInt(page) || 1,
+            limit: parseInt(limit) || 10,
+            sortBy: sortBy || "createdAt",
+            order: order || "desc",
+            filters
+        });
+
+        return res.status(200).json(data);
+
+    } catch (err) {
+        console.error("Get Jobs Error:", err);
+        return res.status(500).json({ message: "Error fetching jobs" });
     }
+}
 
     async getJob(req, res) {
         try {
