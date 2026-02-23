@@ -38,8 +38,8 @@ export default class jobRepo {
         const sortOrder = order === "asc" ? 1 : -1;
 
         const jobs = await Job.find(filters)
-            .select("title location salary company createdAt")
-            .populate("company", "name")
+            .select("title location salary description skills company createdAt")
+            .populate("company", "name location description website")
             .sort({ [sortBy]: sortOrder })
             .skip(skip)
             .limit(limit)

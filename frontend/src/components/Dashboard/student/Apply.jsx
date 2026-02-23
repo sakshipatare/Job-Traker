@@ -383,6 +383,16 @@ const Apply = () => {
                       </a>
                     </div>
                   )}
+                  {/* {selectedJob.company?.description && (
+                  <div className="md:col-span-2">
+                    <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-1">
+                      Company Description
+                    </p>
+                    <p className="text-gray-700 leading-relaxed">
+                      {selectedJob.company.description}
+                    </p>
+                  </div>
+                )} */}
                 </div>
               </div>
 
