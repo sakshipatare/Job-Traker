@@ -1,5 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { Eye, MapPin, DollarSign, Building2, Briefcase, Calendar, X, CheckCircle, AlertCircle, Code, Loader } from "lucide-react";
+import {
+  Eye,
+  MapPin,
+  DollarSign,
+  Building2,
+  Briefcase,
+  Calendar,
+  X,
+  CheckCircle,
+  AlertCircle,
+  Code,
+  Loader,
+  Search,
+  Sliders
+} from "lucide-react";
 
 const Apply = () => {
   const [jobs, setJobs] = useState([]);
@@ -93,6 +107,14 @@ const Apply = () => {
   //   );
   // }
 
+  const clearFilters = () => {
+    setPage(1);
+    setSearchTerm("");
+    setFilters({ title: "", location: "", minSalary: "" });
+  };
+
+  const hasActiveFilters = searchTerm || filters.title || filters.location || filters.minSalary;
+
   return (
     <div className="py-4">
       <div>
@@ -125,72 +147,167 @@ const Apply = () => {
         )}
 
         {/* Search Section */}
-        <div className="bg-white p-6 rounded-2xl shadow-md mb-8 border border-gray-100">
+        <div className="bg-white rounded-3xl shadow-lg border border-gray-100 p-6 md:p-8 mb-10">
 
-          <div className="flex gap-4 items-center">
+          {/* Main Search Bar */}
+          <div className="flex flex-col md:flex-row gap-4 items-center mb-6">
+            <div className="flex-1 relative w-full">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search jobs by title, company, location..."
+                value={searchTerm}
+                onChange={(e) => {
+                  setPage(1);
+                  setSearchTerm(e.target.value);
+                }}
+                className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all text-gray-900 placeholder-gray-500"
+              />
+            </div>
 
-            {/* Global Search */}
-            <input
-              type="text"
-              placeholder="Search jobs (title, location, salary)..."
-              value={searchTerm}
-              onChange={(e) => {
-                setPage(1);
-                setSearchTerm(e.target.value);
-              }}
-              className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-
-            {/* Filter Icon Button */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg font-semibold"
+              className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all whitespace-nowrap ${
+                showFilters
+                  ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
             >
-              ⚙ Filters
+              <Sliders className="w-5 h-5" />
+              <span>Filters</span>
             </button>
-
           </div>
 
           {/* Advanced Filters */}
           {showFilters && (
-            <div className="grid md:grid-cols-3 gap-4 mt-4">
+            <div className="space-y-4 pt-6 border-t-2 border-gray-100">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-              <input
-                type="text"
-                placeholder="Title"
-                value={filters.title}
-                onChange={(e) => {
-                  setPage(1);
-                  setFilters({ ...filters, title: e.target.value });
-                }}
-                className="px-4 py-2 border rounded-lg"
-              />
+                {/* Title Filter */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">Job Title</label>
+                  <input
+                    type="text"
+                    placeholder="e.g., Frontend Developer"
+                    value={filters.title}
+                    onChange={(e) => {
+                      setPage(1);
+                      setFilters({ ...filters, title: e.target.value });
+                    }}
+                    className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400"
+                  />
+                </div>
 
-              <input
-                type="text"
-                placeholder="Location"
-                value={filters.location}
-                onChange={(e) => {
-                  setPage(1);
-                  setFilters({ ...filters, location: e.target.value });
-                }}
-                className="px-4 py-2 border rounded-lg"
-              />
+                {/* Location Filter */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">Location</label>
+                  <input
+                    type="text"
+                    placeholder="e.g., New York, Remote"
+                    value={filters.location}
+                    onChange={(e) => {
+                      setPage(1);
+                      setFilters({ ...filters, location: e.target.value });
+                    }}
+                    className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400"
+                  />
+                </div>
 
-              <input
-                type="number"
-                placeholder="Minimum Salary"
-                value={filters.minSalary}
-                onChange={(e) => {
-                  setPage(1);
-                  setFilters({ ...filters, minSalary: e.target.value });
-                }}
-                className="px-4 py-2 border rounded-lg"
-              />
+                {/* Salary Filter */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">Min. Salary</label>
+                  <input
+                    type="number"
+                    placeholder="e.g., 50000"
+                    value={filters.minSalary}
+                    onChange={(e) => {
+                      setPage(1);
+                      setFilters({ ...filters, minSalary: e.target.value });
+                    }}
+                    className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400"
+                  />
+                </div>
 
+              </div>
+
+              {/* Filter Actions */}
+              {hasActiveFilters && (
+                <div className="flex justify-end pt-2">
+                  <button
+                    onClick={clearFilters}
+                    className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg font-semibold transition-all"
+                  >
+                    <X className="w-4 h-4" />
+                    Clear Filters
+                  </button>
+                </div>
+              )}
             </div>
           )}
-</div>
+
+          {/* Active Filters Display */}
+          {hasActiveFilters && (
+            <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-100">
+              {searchTerm && (
+                <div className="flex items-center gap-2 bg-blue-100 text-blue-700 px-3 py-1.5 rounded-full text-sm font-semibold">
+                  <span>Search: {searchTerm}</span>
+                  <button
+                    onClick={() => {
+                      setPage(1);
+                      setSearchTerm("");
+                    }}
+                    className="hover:text-blue-900"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+              {filters.title && (
+                <div className="flex items-center gap-2 bg-cyan-100 text-cyan-700 px-3 py-1.5 rounded-full text-sm font-semibold">
+                  <span>Title: {filters.title}</span>
+                  <button
+                    onClick={() => {
+                      setPage(1);
+                      setFilters({ ...filters, title: "" });
+                    }}
+                    className="hover:text-cyan-900"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+              {filters.location && (
+                <div className="flex items-center gap-2 bg-green-100 text-green-700 px-3 py-1.5 rounded-full text-sm font-semibold">
+                  <span>Location: {filters.location}</span>
+                  <button
+                    onClick={() => {
+                      setPage(1);
+                      setFilters({ ...filters, location: "" });
+                    }}
+                    className="hover:text-green-900"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+              {filters.minSalary && (
+                <div className="flex items-center gap-2 bg-amber-100 text-amber-700 px-3 py-1.5 rounded-full text-sm font-semibold">
+                  <span>Min Salary: ₹{filters.minSalary}</span>
+                  <button
+                    onClick={() => {
+                      setPage(1);
+                      setFilters({ ...filters, minSalary: "" });
+                    }}
+                    className="hover:text-amber-900"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+        </div>
 
         {/* Jobs Grid */}
         {loading ? (
