@@ -49,3 +49,9 @@
 {"error":"userModel is not defined","level":"error","message":"Google Sign-In error","timestamp":"2026-02-23T09:45:26.880Z"}
 {"error":"userModel is not defined","level":"error","message":"Google Sign-In error","timestamp":"2026-02-23T09:45:54.523Z"}
 {"error":"user.toObject is not a function","level":"error","message":"Google Sign-In error","timestamp":"2026-02-23T09:50:32.579Z"}
+{"email":"sakshipatare03@gmail.com","level":"info","message":"SignIn attempt","timestamp":"2026-02-23T09:54:53.372Z"}
+{"email":"sakshipatare03@gmail.com","level":"info","message":"User logged in successfully","role":"company","timestamp":"2026-02-23T09:54:53.696Z"}
+{"email":"sakshipatare03@gmail.com","level":"info","message":"SignIn attempt","timestamp":"2026-02-23T10:18:12.721Z"}
+{"email":"sakshipatare03@gmail.com","level":"info","message":"User logged in successfully","role":"company","timestamp":"2026-02-23T10:18:13.057Z"}
+{"email":"sakshipatare03@gmail.com","level":"info","message":"SignIn attempt","timestamp":"2026-02-23T10:40:27.192Z"}
+{"email":"sakshipatare03@gmail.com","level":"info","message":"User logged in successfully","role":"company","timestamp":"2026-02-23T10:40:27.535Z"}

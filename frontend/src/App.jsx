@@ -6,6 +6,7 @@ import Login from './components/Auth/Login';
 import Home from './components/Home/Home';
 import StudentDashboard from './components/Dashboard/StudentDashboard';
 import CompanyDashboard from './components/Dashboard/CompanyDashboard';
+import StudentApplicants from './components/Dashboard/company/StudentApply';
 
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<StudentDashboard />} />
           <Route path="/company-dashboard" element={<CompanyDashboard />} />
+          <Route path="/applicants/:jobId" element={<StudentApplicants />} />
         </Routes>
       </BrowserRouter>
     </GoogleOAuthProvider>

@@ -1,6 +1,7 @@
 import applicationRepo from "./application.repository.js";
 import { Student } from "../students/student.schema.js";
 import { Job } from "../jobs/job.schema.js";
+import { Company } from "../companies/company.schema.js";
 
 export default class applicationController {
 
@@ -78,18 +79,38 @@ async applyJob(req, res) {
 
   // Company sees applicants
   async getApplicants(req, res) {
-    try {
-      const { jobId } = req.params;
+  try {
+    const { jobId } = req.params;
 
-      const applications = await this.appRepo.getApplicationsByJob(jobId);
+    //  Find job first
+    const job = await Job.findById(jobId);
 
-      return res.status(200).json(applications);
-
-    } catch (err) {
-      console.error("Get Applicants Error:", err);
-      return res.status(500).json({ message: "Error fetching applicants" });
+    if (!job) {
+      return res.status(404).json({ message: "Job not found" });
     }
+
+    //  Get company profile of logged-in user
+    const company = await Company.findOne({ user: req.user._id });
+
+    if (!company) {
+      return res.status(404).json({ message: "Company not found" });
+    }
+
+    //  Check ownership
+    if (job.company.toString() !== company._id.toString()) {
+      return res.status(403).json({ message: "Unauthorized access" });
+    }
+
+    //  Now fetch applications
+    const applications = await this.appRepo.getApplicationsByJob(jobId);
+
+    return res.status(200).json(applications);
+
+  } catch (err) {
+    console.error("Get Applicants Error:", err);
+    return res.status(500).json({ message: "Error fetching applicants" });
   }
+}
 
   // Student sees applied jobs
   async getMyApplications(req, res) {

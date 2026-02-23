@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import PostJob from "./PostApply";
 import { Pencil, Trash2, MapPin, DollarSign } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const CompanyJobs = () => {
+  const navigate = useNavigate();
   const [showPost, setShowPost] = useState(false);
   const [jobs, setJobs] = useState([]);
   const [editingJob, setEditingJob] = useState(null);
@@ -193,21 +195,31 @@ const CompanyJobs = () => {
             </p>
 
             {/* Update & Delete */}
-            <div className="flex gap-4 mt-3">
-              <button
-                onClick={() => setEditingJob(job)}
-                className="flex items-center gap-1 text-blue-600"
-              >
-                <Pencil size={16} /> Update
-              </button>
+            {/* Actions */}
+          <div className="flex gap-4 mt-3 flex-wrap">
 
-              <button
-                onClick={() => handleDelete(job._id)}
-                className="flex items-center gap-1 text-red-600"
-              >
-                <Trash2 size={16} /> Delete
-              </button>
-            </div>
+            <button
+              onClick={() => navigate(`/applicants/${job._id}`)}
+              className="bg-gray-800 text-white px-3 py-1 rounded"
+            >
+              View Applicants
+            </button>
+
+            <button
+              onClick={() => setEditingJob(job)}
+              className="flex items-center gap-1 text-blue-600"
+            >
+              <Pencil size={16} /> Update
+            </button>
+
+            <button
+              onClick={() => handleDelete(job._id)}
+              className="flex items-center gap-1 text-red-600"
+            >
+              <Trash2 size={16} /> Delete
+            </button>
+
+          </div>
           </div>
         ))}
       </div>

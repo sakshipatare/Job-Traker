@@ -3,7 +3,7 @@ import { Link, useNavigate  } from "react-router-dom";
 import { Briefcase, LogOut } from "lucide-react";
 import CompanyDetails from "./company/CompanyDetails";
 import PostApply from "./company/PostApply";
-import StudentApply from "./company/StudentApply";
+// import StudentApplicants from "./company/StudentApply";
 import CompanyJobs from "./company/CompanyJobs";
 import Footer from "../Home/Footer";
 
@@ -19,8 +19,8 @@ const CompanyDashboard = () => {
         return <PostApply />;
       case "jobs":
         return <CompanyJobs />;
-      case "applicants":
-        return <StudentApply />;
+      // case "applicants":
+      //   return <StudentApplicants />;
       default:
         return <CompanyDetails />;
     }
@@ -69,12 +69,12 @@ const CompanyDashboard = () => {
             Jobs
             </span>
 
-            <span
+            {/* <span
             className={navLinkStyle("applicants")}
             onClick={() => setActivePage("applicants")}
             >
             Applicants
-            </span>
+            </span> */}
         </div>
 
         {/* Logout */}
