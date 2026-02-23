@@ -10,7 +10,7 @@ import CompanyDashboard from './components/Dashboard/CompanyDashboard';
 
 function App() {
   return (
-    <GoogleOAuthProvider clientId="96058883383-37l1psr3jj24606a7doisqhd6ac0th2h.apps.googleusercontent.com">
+    <GoogleOAuthProvider clientId="442659484507-a14m8uec4vl48u4bsc9vlon7mcio65eu.apps.googleusercontent.com">
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />

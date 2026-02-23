@@ -44,3 +44,8 @@
 {"email":"sakshipatare300@gmail.com","level":"info","message":"User logged in successfully","role":"student","timestamp":"2026-02-21T10:27:43.044Z"}
 {"email":"sakshipatare03@gmail.com","level":"info","message":"SignIn attempt","timestamp":"2026-02-21T10:51:49.451Z"}
 {"email":"sakshipatare03@gmail.com","level":"info","message":"User logged in successfully","role":"company","timestamp":"2026-02-21T10:51:49.773Z"}
+{"error":"Cannot destructure property 'password' of 'user._doc' as it is undefined.","level":"error","message":"Google Sign-In error","timestamp":"2026-02-23T09:30:47.859Z"}
+{"error":"userModel is not defined","level":"error","message":"Google Sign-In error","timestamp":"2026-02-23T09:42:49.714Z"}
+{"error":"userModel is not defined","level":"error","message":"Google Sign-In error","timestamp":"2026-02-23T09:45:26.880Z"}
+{"error":"userModel is not defined","level":"error","message":"Google Sign-In error","timestamp":"2026-02-23T09:45:54.523Z"}
+{"error":"user.toObject is not a function","level":"error","message":"Google Sign-In error","timestamp":"2026-02-23T09:50:32.579Z"}

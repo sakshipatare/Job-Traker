@@ -133,55 +133,55 @@ export default class userController {
         }
     }
 
-    async googleSignIn(req, res, next) {
-    try {
-      const { token } = req.body;
+    async googleSignIn(req, res) {
+  try {
+    const { token } = req.body;
 
-      const ticket = await client.verifyIdToken({
-        idToken: token,
-        audience: process.env.GOOGLE_CLIENT_ID,
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const email = payload.email;
+    const name = payload.name;
+
+    let user = await this.userRepo.getUserByEmail(email);
+
+    if (!user) {
+      const hashedPassword = await bcrypt.hash("google_oauth_dummy", 10);
+
+      user = await this.userRepo.signUp({
+        name,
+        email,
+        password: hashedPassword,
+        role: "student",
+        verified: true,
       });
 
-      const payload = ticket.getPayload();
-      const email = payload.email;
-      const name = payload.name;
-
-      let user = await this.userRepo.getUserByEmail(email);
-
-      if (!user) {
-        const newUser = await this.userRepo.signUp({
-            name,
-            email,
-            password: "google_oauth_dummy",
-            verified: true,
-            role: "student",
-        });
-
-        //  Create student profile for Google users
-        await Student.create({ user: newUser._id });
-
-        user = newUser;
-        }
-
-
-      const jwtToken = jwt.sign(
-        { email: user.email, id: user.id },
-        process.env.JWT_SECRET,
-        { expiresIn: "30d" }
-      );
-
-      const { password, ...userWithoutPassword } = user._doc;
-
-      res.json({ token: jwtToken, user: userWithoutPassword });
-
-    } catch (err) {
-      logger.error({
-        message: "Google Sign-In error",
-        error: err.message,
-    });
-      res.status(401).json({ message: "Invalid Google token" });
+      await Student.create({ user: user._id });
     }
+
+    const jwtToken = jwt.sign(
+      { email: user.email, id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "30d" }
+    );
+
+    const userWithoutPassword = { ...user };
+    delete userWithoutPassword.password;
+
+    return res.json({ token: jwtToken, user: userWithoutPassword });
+
+  } catch (err) {
+    logger.error({
+      message: "Google Sign-In error",
+      error: err.message,
+    });
+
+    return res.status(401).json({ message: "Invalid Google token" });
   }
+}
 
     async getUserProfile(req, res){
         res.json({
