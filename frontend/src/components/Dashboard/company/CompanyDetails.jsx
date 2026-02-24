@@ -52,6 +52,33 @@ const CompanyDetails = () => {
     }
   };
 
+  const handleCreate = async () => {
+    if (!formData.name.trim()) {
+    alert("Company name is required");
+    return;
+  }
+  try {
+    const res = await fetch("http://localhost:5000/companies", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(formData),
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      setCompany(data.company);
+    } else {
+      alert(data.message);
+    }
+  } catch (err) {
+    console.error(err);
+  }
+};
+
   const handleUpdate = async () => {
     try {
       setIsSaving(true);
@@ -79,6 +106,13 @@ const CompanyDetails = () => {
     }
   };
 
+  const handleChange = (e) => {
+  setFormData({
+    ...formData,
+    [e.target.name]: e.target.value
+  });
+};
+
   if (loading) {
     return (
       <div className="flex justify-center items-center py-10">
@@ -91,16 +125,96 @@ const CompanyDetails = () => {
   }
 
   if (!company) {
-    return (
-      <div className="flex justify-center items-center py-10">
-        <div className="text-center">
-          <Building2 className="w-16 h-16 text-red-400 mx-auto mb-4" />
-          <p className="text-lg font-semibold text-gray-900 mb-2">Company Profile Not Found</p>
-          <p className="text-gray-600">Please create or complete your company profile to continue.</p>
+  return (
+    <div className="py-6">
+      <div className="max-w-3xl mx-auto">
+
+        {/* Header */}
+        <div className="mb-10 text-center">
+          <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-2">
+            Create Company Profile
+          </h1>
+          <p className="text-gray-600">
+            Set up your company information to start posting jobs
+          </p>
         </div>
+
+        {/* Card */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+
+          {/* Card Header */}
+          <div className="bg-gradient-to-r from-blue-600 to-cyan-600 px-8 py-6">
+            <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+              <Building2 className="w-6 h-6" />
+              Company Information
+            </h2>
+          </div>
+
+          {/* Card Content */}
+          <div className="p-8 space-y-6">
+
+            {/* Company Name */}
+            <div>
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2">
+                Company Name *
+              </label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Enter company name"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all"
+              />
+            </div>
+
+            {/* Location */}
+            <div>
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2">
+                Location
+              </label>
+              <input
+                type="text"
+                name="location"
+                value={formData.location}
+                onChange={handleChange}
+                placeholder="Enter company location"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all"
+              />
+            </div>
+
+            {/* Website */}
+            <div>
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2">
+                Website
+              </label>
+              <input
+                type="text"
+                name="website"
+                value={formData.website}
+                onChange={handleChange}
+                placeholder="https://example.com"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all"
+              />
+            </div>
+
+            {/* Create Button */}
+            <div className="pt-4">
+              <button
+                onClick={handleCreate}
+                className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-200"
+              >
+                Create Company Profile
+              </button>
+            </div>
+
+          </div>
+        </div>
+
       </div>
-    );
-  }
+    </div>
+  );
+}
 
   return (
     <div className="py-2">
@@ -174,7 +288,7 @@ const CompanyDetails = () => {
                     <input
                       type="text"
                       value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      onChange={handleChange}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none text-base transition-colors"
                       placeholder="Enter company name"
                     />

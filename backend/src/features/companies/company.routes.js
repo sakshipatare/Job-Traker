@@ -6,6 +6,8 @@ import { authorizeRole } from "../../middleware/roleAuthorization.js";
 const companyRoute = express.Router();
 const CompanyController = new companyController();
 
+console.log("Company routes loaded");
+
 //  Create company profile → Only company role
 companyRoute.post("/", authMiddleware, authorizeRole("company"), (req, res) => CompanyController.createCompany(req, res));
 

@@ -29,14 +29,16 @@ export default class companyController {
             return res.status(201).json({ message: "Company profile created", company });
         } catch (err) {
             console.error("Create Company Error:", err);
-            return res.status(500).json({ message: "Error creating company profile" });
+            return res.status(400).json({ message: err.message });
         }
     }
 
     // 🔹 Get Company Profile
     async getProfile(req, res) {
         try {
+            console.log("Logged in user ID:", req.user._id);
             const company = await this.companyRepo.getCompanyByUserId(req.user._id);
+            console.log("Company found:", company);
             if (!company) return res.status(404).json({ message: "Company profile not found" });
             return res.status(200).json(company);
         } catch (err) {
