@@ -8,13 +8,13 @@ const applicationSchema = new mongoose.Schema({
   },
   student: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: "Student",
     required: true
   },
-  resume: {
-    type: String,
-    required: true
-  },
+  // resume: {
+  //   type: String,
+  //   required: true
+  // },
   status: {
     type: String,
     enum: ["pending", "shortlisted", "selected", "rejected"],

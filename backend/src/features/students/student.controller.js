@@ -90,6 +90,11 @@ async getStudentStats(req, res) {
     // 🔥 If resume uploaded
     if (req.file) {
       updateData.resume = req.file.path;
+
+      await Application.updateMany(
+        { student: req.user._id },
+        { resume: req.file.path }
+      );
     }
 
     const updatedStudent = await this.studentRepo.updateStudent(

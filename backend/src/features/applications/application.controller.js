@@ -50,13 +50,13 @@ async applyJob(req, res) {
     }
 
     // 5️⃣ Create Application
-    const application = await this.appRepo.createApplication(
-      jobId,
-      req.user._id,
-      studentProfile.resume,
-      status,
-      matchPercentage
-    );
+    const application = await this.appRepo.createApplication({
+      job: jobId,
+      student: studentProfile._id,
+      resume: studentProfile.resume,
+      status: status,
+      matchPercentage: matchPercentage
+    });
 
     // 6️⃣ Update status if shortlisted
     // if (application.status === "pending") {
@@ -114,15 +114,24 @@ async applyJob(req, res) {
 
   // Student sees applied jobs
   async getMyApplications(req, res) {
-    try {
-      const applications = await this.appRepo.getApplicationsByStudent(req.user._id);
-      return res.status(200).json(applications);
+  try {
+    // 1️⃣ Find student profile first
+    const studentProfile = await Student.findOne({ user: req.user._id });
 
-    } catch (err) {
-      console.error("Get My Applications Error:", err);
-      return res.status(500).json({ message: "Error fetching applications" });
+    if (!studentProfile) {
+      return res.status(404).json({ message: "Student profile not found" });
     }
+
+    // 2️⃣ Now use studentProfile._id
+    const applications = await this.appRepo.getApplicationsByStudent(studentProfile._id);
+
+    return res.status(200).json(applications);
+
+  } catch (err) {
+    console.error("Get My Applications Error:", err);
+    return res.status(500).json({ message: "Error fetching applications" });
   }
+}
 
   // Company updates status
   async updateStatus(req, res) {

@@ -282,9 +282,9 @@ const StudentApplicants = () => {
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div className="flex-1">
                       <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
-                        {app.student?.name}
+                        {app.student?.user?.name}
                       </h3>
-                      <p className="text-gray-600 text-sm">{app.student?.email}</p>
+                      <p className="text-gray-600 text-sm">{app.student?.user?.email}</p>
                     </div>
 
                     <div className="flex items-center gap-3">
@@ -341,7 +341,7 @@ const StudentApplicants = () => {
                     <div>
                       <p className="text-sm font-bold text-gray-600 uppercase tracking-wide mb-2">Resume</p>
                       <a
-                        href={`http://localhost:5000/${app.resume}`}
+                        href={`http://localhost:5000/${app.student?.resume?.replace(/\\/g, "/")}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 bg-blue-50 hover:bg-blue-100 text-blue-700 px-4 py-3 rounded-xl font-semibold transition-colors"
