@@ -7,7 +7,7 @@ import { uploadResume } from "../../middleware/upload.js";
 const studentRouter = express.Router();
 const StudentController = new studentController();
 
-// 🔹 Get Profile
+// Get Profile
 studentRouter.get(
   "/profile",
   authMiddleware,
@@ -15,7 +15,7 @@ studentRouter.get(
   (req, res) => StudentController.getProfile(req, res)
 );
 
-// 🔹 Update Profile
+// Update Profile
 studentRouter.put(
   "/profile",
   authMiddleware,
@@ -24,7 +24,7 @@ studentRouter.put(
   (req, res) => StudentController.updateProfile(req, res)
 );
 
-// 🔹 Student Dashboard Stats
+// Student Dashboard Stats
 studentRouter.get(
   "/stats",
   authMiddleware,

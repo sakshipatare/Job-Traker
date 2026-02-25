@@ -21,14 +21,14 @@ async applyJob(req, res) {
       return res.status(400).json({ message: "Upload resume first" });
     }
 
-    // 2️⃣ Fetch Job
+    //  Fetch Job
     const job = await Job.findById(jobId);
 
     if (!job) {
       return res.status(404).json({ message: "Job not found" });
     }
 
-    // 3️⃣ Compare Skills
+    //  Compare Skills
     const jobSkills = job.skills.map(skill =>
       skill.toLowerCase().trim()
     );
@@ -43,13 +43,13 @@ async applyJob(req, res) {
 
     const matchPercentage = (matchedSkills.length / jobSkills.length) * 100;
 
-    // 4️⃣ Decide Status
+    //  Decide Status
     let status = "pending";
     if (matchPercentage >= 70) {
       status = "shortlisted";
     }
 
-    // 5️⃣ Create Application
+    //  Create Application
     const application = await this.appRepo.createApplication({
       job: jobId,
       student: studentProfile._id,
@@ -58,7 +58,7 @@ async applyJob(req, res) {
       matchPercentage: matchPercentage
     });
 
-    // 6️⃣ Update status if shortlisted
+    //  Update status if shortlisted
     // if (application.status === "pending") {
     //   application.status = status;
     //   await application.save();
@@ -115,14 +115,14 @@ async applyJob(req, res) {
   // Student sees applied jobs
   async getMyApplications(req, res) {
   try {
-    // 1️⃣ Find student profile first
+    //  Find student profile first
     const studentProfile = await Student.findOne({ user: req.user._id });
 
     if (!studentProfile) {
       return res.status(404).json({ message: "Student profile not found" });
     }
 
-    // 2️⃣ Now use studentProfile._id
+    // Now use studentProfile._id
     const applications = await this.appRepo.getApplicationsByStudent(studentProfile._id);
 
     return res.status(200).json(applications);

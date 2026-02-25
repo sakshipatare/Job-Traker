@@ -49,7 +49,7 @@ async getStudentStats(req, res) {
   }
 }
 
-  // 🔹 Get Student Profile
+  // Get Student Profile
   async getProfile(req, res) {
     try {
       const student = await this.studentRepo.getStudentByUserId(req.user._id);
@@ -66,7 +66,7 @@ async getStudentStats(req, res) {
     }
   }
 
-  // 🔹 Update Student Profile
+  // Update Student Profile
   async updateProfile(req, res) {
   try {
     const { phone, education } = req.body;
@@ -87,7 +87,7 @@ async getStudentStats(req, res) {
       skills
     };
 
-    // 🔥 If resume uploaded
+    // If resume uploaded
     if (req.file) {
       updateData.resume = req.file.path;
 

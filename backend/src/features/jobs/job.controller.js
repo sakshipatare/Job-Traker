@@ -10,7 +10,7 @@ export default class jobController {
         try {
             const companyRepository = new companyRepo();
 
-            // 🔥 Find company by logged-in user
+            // Find company by logged-in user
             const company = await companyRepository.getCompanyByUserId(req.user._id);
 
             if (!company) {
@@ -19,7 +19,7 @@ export default class jobController {
 
             const data = {
                 ...req.body,
-                company: company._id   // 🔥 Correct company ID
+                company: company._id   // Correct company ID
             };
 
             const job = await this.jobRepo.createJob(data);
@@ -114,7 +114,7 @@ export default class jobController {
             return res.status(404).json({ message: "Job not found" });
         }
 
-        // 🔥 Check ownership
+        // Check ownership
         if (job.company._id.toString() !== company._id.toString()) {
             return res.status(403).json({ message: "Unauthorized" });
         }
@@ -168,14 +168,14 @@ export default class jobController {
     try {
         const companyRepository = new companyRepo();
 
-        // 🔥 Get company profile of logged-in user
+        // Get company profile of logged-in user
         const company = await companyRepository.getCompanyByUserId(req.user._id);
 
         if (!company) {
             return res.status(404).json({ message: "Company not found" });
         }
 
-        // 🔥 Get only jobs of this company
+        // Get only jobs of this company
         const jobs = await this.jobRepo.getJobsByCompany(company._id);
 
         return res.status(200).json(jobs);
