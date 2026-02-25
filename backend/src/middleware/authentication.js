@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
-import { userSchema } from "../features/users/user.schema.js"; // ensure folder is 'users'
+import { userSchema } from "../features/users/user.schema.js";
 
 // Create or reuse model
 const User = mongoose.models.User || mongoose.model("User", userSchema);

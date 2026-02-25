@@ -15,7 +15,7 @@ export default class userRepo {
         }
 
         const newUser = await userModel.create(user);
-        return newUser; // 🔥 return actual user document
+        return newUser; // return actual user document
 
     } catch (err) {
         logger.error({
