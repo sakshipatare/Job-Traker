@@ -72,12 +72,12 @@ const SignupForm = () => {
 
         {/* LEFT PANEL (Visual like image) */}
         <div className="hidden md:flex flex-col p-10 relative overflow-hidden">
-  {/* Background Image */}
-  <img
-    src="/business-office-remote-lifestyle.jpg"
-    alt="Signup Illustration"
-    className="absolute inset-0 h-full w-full object-cover"
-  />
+        {/* Background Image */}
+        <img
+            src="/business-office-remote-lifestyle.jpg"
+            alt="Signup Illustration"
+            className="absolute inset-0 h-full w-full object-cover"
+        />
 
   {/* Overlay */}
   <div className="absolute inset-0 bg-black/40"></div>

@@ -1,15 +1,17 @@
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, Briefcase } from "lucide-react";
 import { useState } from "react";
+import { motion } from "framer-motion";
+
+const navItems = [
+  { path: "/", label: "Home" },
+  { path: "/jobs", label: "Jobs" },
+  { path: "/contact", label: "Contact" },
+];
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
-
-  const isActive = (path) =>
-    location.pathname === path
-      ? "text-violet-400 after:content-[''] after:absolute after:-bottom-1 after:left-0 after:h-[2px] after:w-full after:bg-gradient-to-r after:from-violet-500 after:to-fuchsia-500"
-      : "text-slate-300 hover:text-white";
 
   return (
     <nav className="fixed top-0 w-full z-50 bg-gradient-to-b from-[#0b0b1f]/80 to-[#0b0b1f]/60 backdrop-blur-xl border-b border-white/10">
@@ -27,18 +29,37 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Links */}
-          <div className="hidden md:flex items-center gap-10">
-            {["/", "/jobs", "/contact"].map((path, i) => (
-              <Link
-                key={i}
-                to={path}
-                className={`relative text-sm font-medium transition-all ${isActive(
-                  path
-                )}`}
-              >
-                {path === "/" ? "Home" : path.replace("/", "").charAt(0).toUpperCase() + path.slice(2)}
-              </Link>
-            ))}
+          <div className="hidden md:flex items-center gap-4 relative">
+            {navItems.map((item) => {
+              const isActive = location.pathname === item.path;
+
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className="relative px-5 py-2 text-sm font-medium text-slate-300 hover:text-white transition"
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="navbar-lamp"
+                      className="absolute inset-0 rounded-full bg-gradient-to-r from-violet-600/20 to-fuchsia-600/20"
+                      transition={{
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 30,
+                      }}
+                    >
+                      {/* Glow lamp */}
+                      <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-1 w-6 bg-fuchsia-500 rounded-full">
+                        <div className="absolute -top-2 -left-2 h-6 w-10 bg-fuchsia-500/30 blur-lg rounded-full" />
+                      </div>
+                    </motion.div>
+                  )}
+
+                  <span className="relative z-10">{item.label}</span>
+                </Link>
+              );
+            })}
           </div>
 
           {/* Desktop Actions */}
@@ -69,18 +90,18 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu (unchanged) */}
       {isMenuOpen && (
         <div className="md:hidden bg-[#0b0b1f]/95 backdrop-blur-xl border-t border-white/10">
           <div className="px-4 py-4 space-y-3">
-            {["/", "/jobs", "/contact"].map((path, i) => (
+            {navItems.map((item) => (
               <Link
-                key={i}
-                to={path}
+                key={item.path}
+                to={item.path}
                 onClick={() => setIsMenuOpen(false)}
                 className="block text-sm font-medium text-slate-300 hover:text-white"
               >
-                {path === "/" ? "Home" : path.replace("/", "").charAt(0).toUpperCase() + path.slice(2)}
+                {item.label}
               </Link>
             ))}
 
