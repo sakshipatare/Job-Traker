@@ -43,3 +43,6 @@
 
 @import "tailwindcss";
 
+html {
+  background-color: #050510;
+}

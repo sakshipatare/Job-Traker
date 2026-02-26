@@ -4,6 +4,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Signup from './components/Auth/Signup';
 import Login from './components/Auth/Login';
 import Home from './components/Home/Home';
+import Contact from './components/Home/Contact';
+import Jobs from './components/Home/Job';
 import StudentDashboard from './components/Dashboard/StudentDashboard';
 import CompanyDashboard from './components/Dashboard/CompanyDashboard';
 import StudentApplicants from './components/Dashboard/company/StudentApply';
@@ -15,6 +17,8 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/jobs" element={<Jobs />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<StudentDashboard />} />

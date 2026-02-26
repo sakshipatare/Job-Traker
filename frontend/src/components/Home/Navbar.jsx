@@ -6,75 +6,92 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
 
+  const isActive = (path) =>
+    location.pathname === path
+      ? "text-violet-400 after:content-[''] after:absolute after:-bottom-1 after:left-0 after:h-[2px] after:w-full after:bg-gradient-to-r after:from-violet-500 after:to-fuchsia-500"
+      : "text-slate-300 hover:text-white";
+
   return (
-    <nav className="w-full bg-white/95 backdrop-blur-sm shadow-sm fixed top-0 z-50">
+    <nav className="fixed top-0 w-full z-50 bg-gradient-to-b from-[#0b0b1f]/80 to-[#0b0b1f]/60 backdrop-blur-xl border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <Link to="/" className="flex items-center space-x-2"> 
-          <Briefcase className="w-7 h-7 text-blue-600" /> 
-          <span className="text-xl font-bold text-blue-600"> JobTracker </span> 
+        <div className="flex h-16 items-center justify-between">
+
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 to-fuchsia-600 shadow-lg shadow-violet-500/30">
+              <Briefcase className="h-5 w-5 text-white" />
+            </div>
+            <span className="text-lg font-semibold tracking-tight text-white">
+              JobTracker
+            </span>
           </Link>
 
-          <div className="hidden md:flex items-center space-x-8">
-            <Link to="/" className={`font-medium transition-colors ${location.pathname === "/"? "text-blue-600 font-semibold": "text-gray-600 hover:text-blue-600"}`}>
-              Home
-            </Link>
-            {/* <Link to="/pricing" className="text-gray-600 hover:text-blue-600 transition-colors font-medium">
-              Pricing
-            </Link>
-            <Link to="/docs" className="text-gray-600 hover:text-blue-600 transition-colors font-medium">
-              Docs
-            </Link> */}
-            {/* <Link to="/contact" className={`font-medium transition-colors ${location.pathname === "/contact"? "text-blue-600 font-semibold": "text-gray-600 hover:text-blue-600"}`}>
-              Contact
-            </Link> */}
+          {/* Desktop Links */}
+          <div className="hidden md:flex items-center gap-10">
+            {["/", "/jobs", "/contact"].map((path, i) => (
+              <Link
+                key={i}
+                to={path}
+                className={`relative text-sm font-medium transition-all ${isActive(
+                  path
+                )}`}
+              >
+                {path === "/" ? "Home" : path.replace("/", "").charAt(0).toUpperCase() + path.slice(2)}
+              </Link>
+            ))}
           </div>
 
-          <div className="hidden md:flex items-center space-x-4">
+          {/* Desktop Actions */}
+          <div className="hidden md:flex items-center gap-3">
             <Link to="/login">
-              <button className="px-5 py-2 text-blue-600 font-medium hover:text-blue-700 transition-colors">
+              <button className="text-sm font-medium text-slate-300 hover:text-white transition">
                 Login
               </button>
             </Link>
+
             <Link to="/signup">
-              <button className="px-5 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5 font-medium">
+              <button className="relative overflow-hidden rounded-xl px-5 py-2 text-sm font-medium text-white 
+                bg-gradient-to-r from-violet-600 to-fuchsia-600 
+                shadow-lg shadow-violet-500/30 
+                hover:shadow-fuchsia-500/40 transition-all">
                 Get Started
               </button>
             </Link>
           </div>
 
+          {/* Mobile Menu Button */}
           <button
-            className="md:hidden text-gray-600"
+            className="md:hidden rounded-lg p-2 text-slate-300 hover:bg-white/10"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isMenuOpen ? <X /> : <Menu />}
           </button>
         </div>
       </div>
 
+      {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden bg-white border-t">
+        <div className="md:hidden bg-[#0b0b1f]/95 backdrop-blur-xl border-t border-white/10">
           <div className="px-4 py-4 space-y-3">
-            <Link to="/" className="block text-gray-600 hover:text-blue-600 transition-colors font-medium py-2">
-              Home
-            </Link>
-            {/* <Link to="/pricing" className="block text-gray-600 hover:text-blue-600 transition-colors font-medium py-2">
-              Pricing
-            </Link>
-            <Link to="/docs" className="block text-gray-600 hover:text-blue-600 transition-colors font-medium py-2">
-              Docs
-            </Link> */}
-            {/* <Link to="/contact" className="block text-gray-600 hover:text-blue-600 transition-colors font-medium py-2">
-              Contact
-            </Link> */}
-            <div className="pt-4 space-y-3 border-t">
-              <Link to="/login" className="block">
-                <button className="w-full px-5 py-2 text-blue-600 font-medium border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
+            {["/", "/jobs", "/contact"].map((path, i) => (
+              <Link
+                key={i}
+                to={path}
+                onClick={() => setIsMenuOpen(false)}
+                className="block text-sm font-medium text-slate-300 hover:text-white"
+              >
+                {path === "/" ? "Home" : path.replace("/", "").charAt(0).toUpperCase() + path.slice(2)}
+              </Link>
+            ))}
+
+            <div className="pt-4 border-t border-white/10 space-y-2">
+              <Link to="/login" onClick={() => setIsMenuOpen(false)}>
+                <button className="w-full rounded-lg border border-white/20 px-4 py-2 text-sm text-white hover:bg-white/10">
                   Login
                 </button>
               </Link>
-              <Link to="/signup" className="block">
-                <button className="w-full px-5 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all font-medium">
+              <Link to="/signup" onClick={() => setIsMenuOpen(false)}>
+                <button className="w-full rounded-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 py-2 text-sm text-white shadow-md">
                   Get Started
                 </button>
               </Link>

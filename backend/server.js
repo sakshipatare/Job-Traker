@@ -59,7 +59,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 app.use(
   cors({
-    origin: "http://localhost:5173", // Vite frontend
+    origin: ["http://localhost:5173", "http://localhost:5174"], // Vite frontend
     credentials: true,
   })
 );
