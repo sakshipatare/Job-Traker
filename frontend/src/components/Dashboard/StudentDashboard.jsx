@@ -1,10 +1,17 @@
 import React, { useState } from "react";
-import { Link, useNavigate  } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Briefcase, LogOut } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import Details from "./student/Details";
 import Apply from "./student/Apply";
 import Status from "./student/Status";
 import Footer from "../Home/Footer";
+
+const navItems = [
+  { key: "details", label: "Details" },
+  { key: "apply", label: "Apply" },
+  { key: "status", label: "Status" },
+];
 
 const StudentDashboard = () => {
   const [activePage, setActivePage] = useState("details");
@@ -23,64 +30,84 @@ const StudentDashboard = () => {
     }
   };
 
-  const navLinkStyle = (page) =>
-    `cursor-pointer pb-1 transition duration-200 ${
-      activePage === page
-        ? "border-b-2 border-blue-600 text-blue-600 font-semibold"
-        : "text-gray-600 hover:text-blue-600"
-    }`;
-
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-[#050510] via-[#0b0b1f] to-black text-white">
+
       {/* Navbar */}
-      <div className="bg-white shadow-md px-8 py-4 flex items-center justify-between">
-        
-        {/* Logo */}
-        <Link to="/" className="flex items-center space-x-2">
-          <Briefcase className="w-6 h-6 text-blue-600" />
-          <span className="text-xl font-bold text-blue-600">
-            JobTracker
-          </span>
-        </Link>
+      <nav className="fixed top-0 w-full z-50 bg-gradient-to-b from-[#0b0b1f]/80 to-[#0b0b1f]/60 backdrop-blur-xl border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-8">
+          <div className="flex h-16 items-center justify-between">
 
-        {/* Center Navigation */}
-        <div className="flex space-x-10 absolute left-1/2 transform -translate-x-1/2">
-          <span
-            className={navLinkStyle("details")}
-            onClick={() => setActivePage("details")}
-          >
-            Details
-          </span>
+            {/* Logo */}
+            <Link to="/" className="flex items-center gap-2">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 to-fuchsia-600 shadow-lg shadow-violet-500/30">
+                <Briefcase className="h-5 w-5 text-white" />
+              </div>
+              <span className="text-lg font-semibold tracking-tight text-white">
+                JobTracker
+              </span>
+            </Link>
 
-          <span
-            className={navLinkStyle("apply")}
-            onClick={() => setActivePage("apply")}
-          >
-            Apply
-          </span>
+            {/* Center Navigation with Motion Lamp */}
+            <div className="hidden md:flex items-center gap-4 relative">
+              {navItems.map((item) => {
+                const isActive = activePage === item.key;
 
-          <span
-            className={navLinkStyle("status")}
-            onClick={() => setActivePage("status")}
-          >
-            Status
-          </span>
+                return (
+                  <button
+                    key={item.key}
+                    onClick={() => setActivePage(item.key)}
+                    className="relative px-5 py-2 text-sm font-medium text-slate-300 hover:text-white transition"
+                  >
+                    {isActive && (
+                      <motion.div
+                        layoutId="student-lamp"
+                        className="absolute inset-0 rounded-full bg-gradient-to-r from-violet-600/20 to-fuchsia-600/20"
+                        transition={{
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 30,
+                        }}
+                      >
+                        {/* Glow Lamp */}
+                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-1 w-6 bg-fuchsia-500 rounded-full">
+                          <div className="absolute -top-2 -left-2 h-6 w-10 bg-fuchsia-500/30 blur-lg rounded-full" />
+                        </div>
+                      </motion.div>
+                    )}
+
+                    <span className="relative z-10">{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Logout */}
+            <div
+              className="flex items-center gap-2 text-red-400 cursor-pointer hover:text-red-500 transition"
+              onClick={() => navigate("/")}
+            >
+              <LogOut size={18} />
+              <span className="text-sm font-medium">Logout</span>
+            </div>
+          </div>
         </div>
+      </nav>
 
-        {/* Logout */}
-        <div
-          className="flex items-center gap-2 text-red-500 cursor-pointer hover:text-red-600"
-          onClick={() => navigate("/")}
-        >
-          <LogOut size={18} />
-          <span>Logout</span>
-        </div>
-      </div>
-
-      {/* Page Content */}
-      <div className="p-8 max-w-6xl mx-auto">
-        <div className="bg-white rounded-xl shadow-md p-6">
-          {renderPage()}
+      {/* Animated Page Content */}
+      <div className="pt-28 px-6 max-w-6xl mx-auto pb-24">
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-8">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activePage}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              {renderPage()}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
 

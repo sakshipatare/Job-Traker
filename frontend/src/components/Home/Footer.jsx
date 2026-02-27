@@ -3,7 +3,7 @@ import { Briefcase, Github, Linkedin, Twitter } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="relative bg-gradient-to-b from-[#050510] to-[#0b0b1f] text-slate-300">
+    <footer className="relative bg-gradient-to-b from-[#06061a] via-[#0b0b2f] to-[#120a45] text-slate-300">
       {/* Glow */}
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-500/40 to-transparent" />
 
@@ -22,7 +22,7 @@ export default function Footer() {
                 JobTracker
               </span>
             </div>
-            <p className="text-sm text-slate-400 leading-relaxed max-w-sm">
+            <p className="text-sm text-slate-300 leading-relaxed max-w-sm">
               A modern job tracking platform helping students and companies
               connect with clarity, speed, and transparency.
             </p>
