@@ -15,7 +15,7 @@ const navItems = [
 ];
 
 const CompanyDashboard = () => {
-  const [activePage, setActivePage] = useState("details");
+  const [activePage, setActivePage] = useState("jobs");
   const navigate = useNavigate();
 
   const renderPage = () => {
