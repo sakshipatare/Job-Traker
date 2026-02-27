@@ -1,387 +1,349 @@
 import React, { useEffect, useState } from "react";
-import { Eye, Download, Upload, CheckCircle, AlertCircle, FileText, User, Mail, Phone, BookOpen, Zap } from "lucide-react";
+import {
+  User,
+  Mail,
+  Phone,
+  BookOpen,
+  Zap,
+  FileText,
+  Upload,
+  Image,
+  Check,
+  AlertCircle,
+  X,
+  Edit3,
+  Eye,
+  Save,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+
+const InputField = ({
+  icon: Icon,
+  label,
+  disabled = false,
+  ...props
+}) => (
+  <div>
+    <label className="text-sm text-slate-300 mb-2 flex items-center gap-2">
+      <Icon className="w-4 h-4 text-fuchsia-300" />
+      {label}
+    </label>
+    <input
+      {...props}
+      disabled={disabled}
+      className={`w-full px-4 py-3 rounded-xl bg-white/5 border border-purple-500/30 
+      focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-500/40 
+      outline-none text-slate-200 placeholder-slate-400 transition-all
+      ${disabled ? "opacity-60 cursor-not-allowed" : ""}`}
+    />
+  </div>
+);
 
 const Details = () => {
-  const [student, setStudent] = useState(null);
-  const [editMode, setEditMode] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState("");
-
-  const [phone, setPhone] = useState("");
-  const [education, setEducation] = useState("");
-  const [skills, setSkills] = useState("");
-  const [resume, setResume] = useState(null);
-  const [resumePreview, setResumePreview] = useState(null);
-
   const token = localStorage.getItem("token");
 
-  const fetchProfile = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(
-        "http://localhost:5000/students/profile",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    education: "",
+    skills: "",
+    resume: null,
+    profilePhoto: null,
+  });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setStudent(data);
-        setPhone(data.phone || "");
-        setEducation(data.education || "");
-        setSkills(data.skills?.join(", ") || "");
-      }
-    } catch (error) {
-      console.error("Error fetching profile:", error);
-      setMessage({ type: "error", text: "Failed to load profile" });
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [originalData, setOriginalData] = useState(null);
+  const [resumeFileName, setResumeFileName] = useState("");
+  const [resumePath, setResumePath] = useState("");
+  const [photoPreview, setPhotoPreview] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     fetchProfile();
   }, []);
 
-  const handleUpdate = async () => {
+  const fetchProfile = async () => {
     try {
-      const formData = new FormData();
+      const res = await fetch("http://localhost:5000/students/profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-      formData.append("phone", phone);
-      formData.append("education", education);
-      formData.append(
-        "skills",
-        JSON.stringify(skills.split(",").map((s) => s.trim()))
-      );
+      const data = await res.json();
 
-      if (resume) {
-        formData.append("resume", resume);
-      }
+      if (res.ok) {
+        const profileData = {
+          name: data.user?.name || "",
+          email: data.user?.email || "",
+          phone: data.phone || "",
+          education: data.education || "",
+          skills: data.skills?.join(", ") || "",
+          resume: null,
+          profilePhoto: null,
+        };
 
-      const response = await fetch(
-        "http://localhost:5000/students/profile",
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
+        setFormData(profileData);
+        setOriginalData(profileData);
+
+        if (data.resume) {
+          const fileName = data.resume.split(/[/\\]/).pop();
+          setResumeFileName(fileName);
+          setResumePath(`http://localhost:5000/${data.resume}`);
+        } else {
+          setResumeFileName("");
+          setResumePath("");
         }
+
+        if (data.profilePhoto) {
+          setPhotoPreview(`http://localhost:5000/${data.profilePhoto}`);
+        } else {
+          setPhotoPreview("");
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      setErrorMessage("Failed to load profile.");
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
+
+    if (name === "resume") {
+      const file = files[0];
+      if (file) {
+        setFormData((prev) => ({ ...prev, resume: file }));
+        setResumeFileName(file.name);
+      }
+    } else if (name === "profilePhoto") {
+      const file = files[0];
+      if (file) {
+        setFormData((prev) => ({ ...prev, profilePhoto: file }));
+        setPhotoPreview(URL.createObjectURL(file));
+      }
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const handleCancel = () => {
+    setFormData(originalData);
+    setIsEditing(false);
+    fetchProfile();
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      setIsSubmitting(true);
+
+      const form = new FormData();
+      form.append("phone", formData.phone);
+      form.append("education", formData.education);
+      form.append(
+        "skills",
+        JSON.stringify(
+          formData.skills
+            .split(",")
+            .map((s) => s.trim())
+            .filter((s) => s !== "")
+        )
       );
 
-      const data = await response.json();
+      if (formData.resume) form.append("resume", formData.resume);
+      if (formData.profilePhoto)
+        form.append("profilePhoto", formData.profilePhoto);
 
-      if (response.ok) {
-        setMessage({ type: "success", text: "Profile updated successfully!" });
-        setEditMode(false);
-        setResume(null);
-        setResumePreview(null);
+      const res = await fetch("http://localhost:5000/students/profile", {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` },
+        body: form,
+      });
+
+      if (res.ok) {
+        setSuccessMessage("Profile updated successfully!");
+        setIsEditing(false);
         fetchProfile();
-        setTimeout(() => setMessage(""), 3000);
+        setTimeout(() => setSuccessMessage(""), 3000);
       } else {
-        setMessage({ type: "error", text: data.message || "Update failed" });
+        setErrorMessage("Failed to update profile.");
       }
-    } catch (error) {
-      console.error("Update error:", error);
-      setMessage({ type: "error", text: "Failed to update profile" });
+    } catch (err) {
+      setErrorMessage("Server error.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setResume(file);
-      setResumePreview(file.name);
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center py-10">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Loading your profile...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!student) {
-    return (
-      <div className="flex justify-center items-center py-10">
-        <div className="text-center">
-          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <p className="text-gray-700 font-medium">Unable to load profile</p>
-        </div>
-      </div>
-    );
-  }
-
-  const resumeName = student.resume ? student.resume.split("/").pop() : null;
 
   return (
-    <div className="py-2">
-      <div className="max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-2">
-            Student Profile
-          </h1>
-          <p className="text-gray-600">Manage your professional information and resume</p>
-        </div>
+    <div className="px-6 pt-4 pb-20">
 
-        {/* Message Alert */}
-        {message && (
-          <div
-            className={`mb-6 p-4 rounded-lg flex items-center space-x-3 animate-in fade-in ${
-              message.type === "success"
-                ? "bg-emerald-50 border border-emerald-200"
-                : "bg-red-50 border border-red-200"
-            }`}
-          >
-            {message.type === "success" ? (
-              <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0" />
-            ) : (
-              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.4 }}
+    className="mb-10 flex flex-col md:flex-row md:items-start md:justify-between gap-6"
+  >
+
+    {/* Left Section */}
+    <div>
+      <h1 className="text-3xl font-bold text-fuchsia-400">
+        Student Profile
+      </h1>
+      <p className="text-slate-400 mt-2 text-sm">
+        Manage your professional information and resume
+      </p>
+    </div>
+
+    {/* Right Section - Success Message */}
+    <AnimatePresence>
+      {successMessage && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.3 }}
+          className="px-4 py-3 rounded-xl bg-emerald-500/10 
+          border border-emerald-500/30 flex items-center gap-3 
+          backdrop-blur-md"
+        >
+          <Check className="text-emerald-400" size={18} />
+          <span className="text-emerald-300 text-sm">
+            {successMessage}
+          </span>
+        </motion.div>
+      )}
+    </AnimatePresence>
+
+  </motion.div>
+
+      <div className="max-w-4xl mx-auto bg-[#070017]/80 p-10 rounded-3xl border border-purple-500/40">
+        <form onSubmit={handleSubmit} className="space-y-8">
+
+          {/* Photo */}
+          <div className="flex items-center gap-6">
+            <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-fuchsia-400">
+              {photoPreview ? (
+                <img
+                  src={photoPreview}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full text-slate-400">
+                  <User size={30} />
+                </div>
+              )}
+            </div>
+
+            {isEditing && (
+              <label className="cursor-pointer px-4 py-2 bg-white/5 border border-purple-500/30 rounded-xl flex gap-2 items-center text-sm hover:shadow-[0_0_10px_#a855f7]">
+                <Image size={16} />
+                Change Photo
+                <input
+                  type="file"
+                  name="profilePhoto"
+                  accept="image/*"
+                  onChange={handleChange}
+                  className="hidden"
+                />
+              </label>
             )}
-            <span className={message.type === "success" ? "text-emerald-800" : "text-red-800"}>
-              {message.text}
-            </span>
           </div>
-        )}
 
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-          {/* Profile Header Card */}
-          <div className="bg-gradient-to-r from-blue-600 to-cyan-600 px-6 py-6">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur flex items-center justify-center">
-                <User className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold text-white">{student.user?.name}</h2>
-                <p className="text-blue-100">{student.user?.role}</p>
-              </div>
+          <div className="grid md:grid-cols-2 gap-6">
+            <InputField icon={User} label="Full Name" value={formData.name} disabled />
+            <InputField icon={Mail} label="Email" value={formData.email} disabled />
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <InputField icon={Phone} label="Phone" name="phone" value={formData.phone} onChange={handleChange} disabled={!isEditing} />
+            <InputField icon={BookOpen} label="Education" name="education" value={formData.education} onChange={handleChange} disabled={!isEditing} />
+          </div>
+
+          <InputField icon={Zap} label="Skills" name="skills" value={formData.skills} onChange={handleChange} disabled={!isEditing} />
+
+          {/* Resume */}
+          <div>
+            <label className="text-sm text-slate-300 mb-3 flex items-center gap-2">
+              <FileText className="w-4 h-4 text-fuchsia-300" />
+              Resume
+            </label>
+
+            <div className="flex items-center gap-4 flex-wrap">
+              {resumeFileName ? (
+                <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-white/5 border border-purple-500/30">
+                  <span className="text-slate-200 text-sm">
+                    {resumeFileName}
+                  </span>
+
+                  <a
+                    href={resumePath}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 rounded-lg bg-fuchsia-500/20 hover:bg-fuchsia-500/40 border border-fuchsia-400/40 transition-all hover:shadow-[0_0_12px_#d946ef]"
+                  >
+                    <Eye size={16} className="text-fuchsia-300" />
+                  </a>
+                </div>
+              ) : (
+                <span className="text-slate-400 text-sm">
+                  No resume uploaded
+                </span>
+              )}
+
+              {isEditing && (
+                <label className="cursor-pointer px-4 py-2 rounded-xl bg-white/5 border border-purple-500/30 hover:bg-white/10 text-sm flex items-center gap-2 hover:shadow-[0_0_10px_#a855f7]">
+                  <Upload size={16} />
+                  {resumeFileName ? "Change" : "Upload"}
+                  <input
+                    type="file"
+                    name="resume"
+                    accept=".pdf,.doc,.docx"
+                    onChange={handleChange}
+                    className="hidden"
+                  />
+                </label>
+              )}
             </div>
           </div>
 
-          {/* Profile Content */}
-          <div className="p-8">
-            {editMode ? (
-              // Edit Mode
-              <div className="space-y-6">
-                {/* Email (Read-only) */}
-                <div className="space-y-2">
-                  <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700">
-                    <Mail className="w-4 h-4 text-blue-600" />
-                    <span>Email (Read-only)</span>
-                  </label>
-                  <input
-                    type="email"
-                    value={student.user?.email}
-                    disabled
-                    className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg text-gray-600 cursor-not-allowed"
-                  />
-                </div>
-
-                {/* Phone */}
-                <div className="space-y-2">
-                  <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700">
-                    <Phone className="w-4 h-4 text-cyan-600" />
-                    <span>Phone Number</span>
-                  </label>
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="Enter your phone number"
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
-                  />
-                </div>
-
-                {/* Education */}
-                <div className="space-y-2">
-                  <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700">
-                    <BookOpen className="w-4 h-4 text-emerald-600" />
-                    <span>Education</span>
-                  </label>
-                  <textarea
-                    value={education}
-                    onChange={(e) => setEducation(e.target.value)}
-                    placeholder="E.g., Bachelor of Science in Computer Science"
-                    rows="2"
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition resize-none"
-                  />
-                </div>
-
-                {/* Skills */}
-                <div className="space-y-2">
-                  <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700">
-                    <Zap className="w-4 h-4 text-orange-600" />
-                    <span>Skills</span>
-                  </label>
-                  <textarea
-                    value={skills}
-                    onChange={(e) => setSkills(e.target.value)}
-                    placeholder="Enter skills separated by commas (e.g., React, Node.js, Python)"
-                    rows="3"
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition resize-none"
-                  />
-                  <p className="text-xs text-gray-500">Separate multiple skills with commas</p>
-                </div>
-
-                {/* Resume Upload */}
-                <div className="space-y-2">
-                  <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700">
-                    <Upload className="w-4 h-4 text-purple-600" />
-                    <span>Resume</span>
-                  </label>
-                  <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-blue-500 hover:bg-blue-50/30 transition cursor-pointer group">
-                    <input
-                      type="file"
-                      onChange={handleFileChange}
-                      className="absolute inset-0 opacity-0 cursor-pointer"
-                      accept=".pdf,.doc,.docx"
-                    />
-                    <div className="text-center">
-                      <FileText className="w-8 h-8 text-gray-400 mx-auto mb-2 group-hover:text-blue-500 transition" />
-                      <p className="text-sm font-medium text-gray-700">
-                        {resumePreview ? `Selected: ${resumePreview}` : "Click to upload or drag and drop"}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">PDF, DOC, or DOCX</p>
+          {/* Buttons */}
+          {!isEditing ? (
+            <button
+              type="button"
+              onClick={() => setIsEditing(true)}
+              className="px-6 py-2.5 text-sm rounded-xl bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:shadow-[0_0_15px_#d946ef] transition-all"
+            >
+              Update Profile
+            </button>
+          ) : (
+            <div className="flex gap-3">
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="flex items-center gap-2 px-6 py-3 rounded-xl 
+                        bg-emerald-500 hover:bg-emerald-600 transition 
+                        text-white font-medium disabled:opacity-50"
+                      >
+                        <Save size={16} />
+                        {isSubmitting ? "Saving..." : "Save"}
+                      </button>
+            
+                      <button
+                         type="button"
+                          onClick={handleCancel}
+                        className="flex items-center gap-2 px-6 py-3 rounded-xl 
+                        bg-white/10 hover:bg-white/20 transition text-white"
+                      >
+                        <X size={16} /> Cancel
+                      </button>
                     </div>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex gap-3 pt-4">
-                  <button
-                    onClick={handleUpdate}
-                    className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold py-3 rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2"
-                  >
-                    <CheckCircle className="w-5 h-5" />
-                    <span>Save Changes</span>
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setEditMode(false);
-                      setResume(null);
-                      setResumePreview(null);
-                      setPhone(student.phone || "");
-                      setEducation(student.education || "");
-                      setSkills(student.skills?.join(", ") || "");
-                    }}
-                    className="flex-1 bg-gray-200 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-300 transition-all duration-300"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            ) : (
-              // View Mode
-              <div className="space-y-6">
-                {/* Email */}
-                <div className="flex items-start space-x-4 pb-6 border-b border-gray-100">
-                  <Mail className="w-5 h-5 text-blue-600 flex-shrink-0 mt-1" />
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Email</p>
-                    <p className="text-lg text-gray-900 font-medium">{student.user?.email}</p>
-                  </div>
-                </div>
-
-                {/* Phone */}
-                <div className="flex items-start space-x-4 pb-6 border-b border-gray-100">
-                  <Phone className="w-5 h-5 text-cyan-600 flex-shrink-0 mt-1" />
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Phone</p>
-                    <p className="text-lg text-gray-900 font-medium">
-                      {student.phone || <span className="text-gray-400">Not added yet</span>}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Education */}
-                <div className="flex items-start space-x-4 pb-6 border-b border-gray-100">
-                  <BookOpen className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-1" />
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Education</p>
-                    <p className="text-lg text-gray-900 font-medium">
-                      {student.education || <span className="text-gray-400">Not added yet</span>}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Skills */}
-                <div className="flex items-start space-x-4 pb-6 border-b border-gray-100">
-                  <Zap className="w-5 h-5 text-orange-600 flex-shrink-0 mt-1" />
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Skills</p>
-                    {student.skills && student.skills.length > 0 ? (
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {student.skills.map((skill, index) => (
-                          <span
-                            key={index}
-                            className="px-3 py-1 bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700 font-medium rounded-full text-sm border border-blue-200"
-                          >
-                            {skill}
-                          </span>
-                        ))}
-                      </div>
-                    ) : (
-                      <span className="text-gray-400">Not added yet</span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Resume */}
-                <div className="flex items-start space-x-4">
-                  <FileText className="w-5 h-5 text-purple-600 flex-shrink-0 mt-1" />
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-3">Resume</p>
-                    {resumeName ? (
-                      <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4 flex items-center justify-between hover:shadow-md transition">
-                        <div className="flex items-center space-x-3">
-                          <FileText className="w-6 h-6 text-purple-600" />
-                          <div>
-                            <p className="font-medium text-gray-900">{resumeName}</p>
-                            <p className="text-xs text-gray-500">PDF Document</p>
-                          </div>
-                        </div>
-                        <a
-                          href={`http://localhost:5000/${student.resume}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-purple-600 hover:text-purple-700 hover:scale-110 transition-transform"
-                          title="View Resume"
-                        >
-                          <Eye className="w-6 h-6" />
-                        </a>
-                      </div>
-                    ) : (
-                      <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                        <FileText className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-                        <p className="text-gray-500 font-medium">No resume uploaded</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Edit Button */}
-                <button
-                  onClick={() => setEditMode(true)}
-                  className="w-full mt-8 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold py-3 rounded-lg hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2"
-                >
-                  <Upload className="w-5 h-5" />
-                  <span>Edit Profile</span>
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
+          )}
+        </form>
       </div>
     </div>
   );

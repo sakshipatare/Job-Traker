@@ -88,14 +88,21 @@ async getStudentStats(req, res) {
     };
 
     // If resume uploaded
-    if (req.file) {
-      updateData.resume = req.file.path;
+    if (req.files?.resume?.length > 0) {
+  const resumePath = req.files.resume[0].path;
 
-      await Application.updateMany(
-        { student: req.user._id },
-        { resume: req.file.path }
-      );
-    }
+  updateData.resume = resumePath;
+
+  await Application.updateMany(
+    { student: req.user._id },
+    { resume: resumePath }
+  );
+}
+
+// Profile Photo
+if (req.files?.profilePhoto?.length > 0) {
+  updateData.profilePhoto = req.files.profilePhoto[0].path;
+}
 
     const updatedStudent = await this.studentRepo.updateStudent(
       req.user._id,

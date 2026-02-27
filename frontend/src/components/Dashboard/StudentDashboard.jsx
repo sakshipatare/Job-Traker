@@ -6,6 +6,7 @@ import Details from "./student/Details";
 import Apply from "./student/Apply";
 import Status from "./student/Status";
 import Footer from "../Home/Footer";
+import { BeamsBackground } from "../ui/BeamsBackground";
 
 const navItems = [
   { key: "details", label: "Details" },
@@ -14,7 +15,7 @@ const navItems = [
 ];
 
 const StudentDashboard = () => {
-  const [activePage, setActivePage] = useState("details");
+  const [activePage, setActivePage] = useState("apply");
   const navigate = useNavigate();
 
   const renderPage = () => {
@@ -48,7 +49,7 @@ const StudentDashboard = () => {
               </span>
             </Link>
 
-            {/* Center Navigation with Motion Lamp */}
+            {/* Center Navigation */}
             <div className="hidden md:flex items-center gap-4 relative">
               {navItems.map((item) => {
                 const isActive = activePage === item.key;
@@ -61,7 +62,7 @@ const StudentDashboard = () => {
                   >
                     {isActive && (
                       <motion.div
-                        layoutId="student-lamp"
+                        layoutId="dashboard-lamp"
                         className="absolute inset-0 rounded-full bg-gradient-to-r from-violet-600/20 to-fuchsia-600/20"
                         transition={{
                           type: "spring",
@@ -90,26 +91,29 @@ const StudentDashboard = () => {
               <LogOut size={18} />
               <span className="text-sm font-medium">Logout</span>
             </div>
+
           </div>
         </div>
       </nav>
 
-      {/* Animated Page Content */}
-      <div className="pt-28 px-6 max-w-6xl mx-auto pb-24">
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-8">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activePage}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              {renderPage()}
-            </motion.div>
-          </AnimatePresence>
+      {/* Animated Page Content with Beams */}
+      <BeamsBackground intensity="medium">
+        <div className="pt-28 px-6 max-w-6xl mx-auto pb-24">
+          <div className="bg-white/5 backdrop-blur-xl border border-indigo-500/30 rounded-2xl shadow-2xl p-8">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activePage}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                {renderPage()}
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </div>
-      </div>
+      </BeamsBackground>
 
       <Footer />
     </div>

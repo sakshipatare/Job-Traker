@@ -2,7 +2,7 @@ import express from "express";
 import studentController from "./student.controller.js";
 import { authMiddleware } from "../../middleware/authentication.js";
 import { authorizeRole } from "../../middleware/roleAuthorization.js";
-import { uploadResume } from "../../middleware/upload.js";
+import { uploadFiles  } from "../../middleware/upload.js";
 
 const studentRouter = express.Router();
 const StudentController = new studentController();
@@ -20,7 +20,7 @@ studentRouter.put(
   "/profile",
   authMiddleware,
   authorizeRole("student"),
-  uploadResume,
+  uploadFiles,
   (req, res) => StudentController.updateProfile(req, res)
 );
 

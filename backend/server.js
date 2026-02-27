@@ -9,6 +9,8 @@ import dotenv from "dotenv";
 import cors from "cors";
 import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
+// import express from "express";
+import path from "path";
 // import logger from "./src/utils/logger.js";
 
 dotenv.config();

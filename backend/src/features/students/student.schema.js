@@ -21,7 +21,10 @@ const studentSchema = new mongoose.Schema(
     ],
     resume: {
       type: String, // file path or URL
-    }
+    },
+    profilePhoto: {
+      type: String   // ✅ add this
+    },
   },
   { timestamps: true }
 );
