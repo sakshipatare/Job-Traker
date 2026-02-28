@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Briefcase, LogOut } from "lucide-react";
+import { Briefcase, LogOut, Bell } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import axios from "axios";
+
 import Details from "./student/Details";
 import Apply from "./student/Apply";
 import Status from "./student/Status";
@@ -16,7 +18,58 @@ const navItems = [
 
 const StudentDashboard = () => {
   const [activePage, setActivePage] = useState("apply");
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+
   const navigate = useNavigate();
+
+  // ==========================
+  // FETCH NOTIFICATIONS
+  // ==========================
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+
+  const fetchNotifications = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await axios.get("http://localhost:5000/notifications", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    setNotifications(res.data);
+  } catch (error) {
+    console.error("Error fetching notifications", error);
+  }
+};
+
+  // ==========================
+  // MARK AS READ
+  // ==========================
+  const markAsRead = async (id) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    await axios.patch(
+      `http://localhost:5000/notifications/${id}/read`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    fetchNotifications(); // refresh
+  } catch (error) {
+    console.error("Error marking as read", error);
+  }
+};
+
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   const renderPage = () => {
     switch (activePage) {
@@ -70,33 +123,79 @@ const StudentDashboard = () => {
                           damping: 30,
                         }}
                       >
-                        {/* Glow Lamp */}
                         <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-1 w-6 bg-fuchsia-500 rounded-full">
                           <div className="absolute -top-2 -left-2 h-6 w-10 bg-fuchsia-500/30 blur-lg rounded-full" />
                         </div>
                       </motion.div>
                     )}
-
                     <span className="relative z-10">{item.label}</span>
                   </button>
                 );
               })}
             </div>
 
-            {/* Logout */}
-            <div
-              className="flex items-center gap-2 text-red-400 cursor-pointer hover:text-red-500 transition"
-              onClick={() => navigate("/")}
-            >
-              <LogOut size={18} />
-              <span className="text-sm font-medium">Logout</span>
+            {/* Right Side (Notifications + Logout) */}
+            <div className="flex items-center gap-6">
+
+              {/* 🔔 Notification Bell */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowNotifications(!showNotifications)}
+                  className="relative text-slate-300 hover:text-white transition"
+                >
+                  <Bell size={20} />
+
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-xs px-1.5 py-0.5 rounded-full">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                {/* Dropdown */}
+                {showNotifications && (
+                  <div className="absolute right-0 mt-3 w-80 bg-[#0b0b1f] border border-white/10 rounded-xl shadow-xl max-h-96 overflow-y-auto z-50">
+
+                    {notifications.length === 0 ? (
+                      <p className="p-4 text-sm text-slate-400">
+                        No notifications
+                      </p>
+                    ) : (
+                      notifications.map((n) => (
+                        <div
+                          key={n._id}
+                          onClick={() => markAsRead(n._id)}
+                          className={`p-4 border-b border-white/5 text-sm cursor-pointer hover:bg-white/5 transition ${
+                            !n.isRead ? "bg-violet-600/10" : ""
+                          }`}
+                        >
+                          <p className="font-medium">{n.title}</p>
+                          <p className="text-slate-400 text-xs mt-1">
+                            {n.message}
+                          </p>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Logout */}
+              <div
+                className="flex items-center gap-2 text-red-400 cursor-pointer hover:text-red-500 transition"
+                onClick={() => navigate("/")}
+              >
+                <LogOut size={18} />
+                <span className="text-sm font-medium">Logout</span>
+              </div>
+
             </div>
 
           </div>
         </div>
       </nav>
 
-      {/* Animated Page Content with Beams */}
+      {/* Animated Page Content */}
       <BeamsBackground intensity="medium">
         <div className="pt-28 px-6 max-w-6xl mx-auto pb-24">
           <div className="bg-white/5 backdrop-blur-xl border border-indigo-500/30 rounded-2xl shadow-2xl p-8">

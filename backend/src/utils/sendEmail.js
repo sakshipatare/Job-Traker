@@ -60,3 +60,20 @@ export const sendResetPasswordEmail = async (email, token) => {
     throw err;
   }
 };
+
+export const sendEmail = async (to, subject, htmlContent) => {
+  try {
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: to,
+      subject: subject,
+      html: htmlContent,
+    });
+
+    console.log("Email sent:", info.messageId);
+    return true;
+  } catch (err) {
+    console.error("sendEmail error:", err);
+    throw err;
+  }
+};

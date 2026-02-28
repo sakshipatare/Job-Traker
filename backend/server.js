@@ -5,10 +5,12 @@ import studentRoutes from "./src/features/students/student.routes.js";
 import companyRoute from "./src/features/companies/company.routes.js";
 import jobRoutes from "./src/features/jobs/job.routes.js";
 import applicationRoute from "./src/features/applications/application.routes.js";
+import notificationRouter from "./src/features/notifications/notification.routes.js";
 import dotenv from "dotenv";
 import cors from "cors";
 import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
+import helmet from "helmet";
 // import express from "express";
 import path from "path";
 // import logger from "./src/utils/logger.js";
@@ -16,6 +18,20 @@ import path from "path";
 dotenv.config();
 
 const app = express();
+
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "http://localhost:5174"],
+    credentials: true,
+  })
+);
+
+app.use(
+  helmet({
+    crossOriginOpenerPolicy: false,
+    crossOriginResourcePolicy: false,
+  })
+);
 
 // Swagger Configuration
 const options = {
@@ -59,17 +75,22 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 //     next();
 // });
 
-app.use(
-  cors({
-    origin: ["http://localhost:5173", "http://localhost:5174"], // Vite frontend
-    credentials: true,
-  })
-);
+// app.use(
+//   cors({
+//     origin: ["http://localhost:5173", "http://localhost:5174"], // Vite frontend
+//     credentials: true,
+//   })
+// );
+
+// app.use(cors());
 
 
 // Middlewares
 app.use(express.json());
-app.use("/uploads", express.static("uploads"));
+app.use(
+  "/uploads",
+  express.static(path.join(process.cwd(), "uploads"))
+);
 
 // Connect DB
 connectUsingMongoose();
@@ -84,6 +105,7 @@ app.use("/students", studentRoutes);
 app.use("/companies", companyRoute);
 app.use("/jobs", jobRoutes);
 app.use("/applications", applicationRoute);
+app.use("/notifications", notificationRouter);
 
 app.get("/", (req, res) => {
   res.send("Server is running ");

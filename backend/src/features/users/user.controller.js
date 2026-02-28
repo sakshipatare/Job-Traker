@@ -162,6 +162,11 @@ export default class userController {
       await Student.create({ user: user._id });
     }
 
+    if (user && !user.verified) {
+    user.verified = true;
+    await userModel.updateOne({ email }, { verified: true });
+    }
+
     const jwtToken = jwt.sign(
       { email: user.email, id: user._id, role: user.role },
       process.env.JWT_SECRET,

@@ -141,12 +141,39 @@ export default function Login() {
             {/* Google */}
             <div className="flex justify-center">
               <GoogleLogin
+                onSuccess={async (credentialResponse) => {
+                  try {
+                    const response = await fetch("http://localhost:5000/users/google-signin", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ token: credentialResponse.credential }),
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                      localStorage.setItem("userData", JSON.stringify(data.user));
+                      localStorage.setItem("token", data.token);
+
+                      data.user.role === "company"
+                        ? navigate("/company-dashboard")
+                        : navigate("/dashboard");
+                    } else {
+                      setError(data.message || "Google login failed");
+                    }
+                  } catch (err) {
+                    setError("Google login failed");
+                  }
+                }}
+                onError={() => {
+                  setError("Google Sign-In failed");
+                }}
                 theme="filled_black"
                 size="large"
                 shape="pill"
                 text="signin_with"
                 width="320"
-                />
+              />
             </div>
 
             <p className="mt-8 text-center text-sm text-slate-400">

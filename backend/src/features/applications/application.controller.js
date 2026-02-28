@@ -2,6 +2,10 @@ import applicationRepo from "./application.repository.js";
 import { Student } from "../students/student.schema.js";
 import { Job } from "../jobs/job.schema.js";
 import { Company } from "../companies/company.schema.js";
+import { Application } from "./application.schema.js";
+import { Notification } from "../notifications/notification.schema.js";
+import { userModel } from "../users/user.repository.js";
+import { sendEmail } from "../../utils/sendEmail.js";
 
 export default class applicationController {
 
@@ -134,25 +138,84 @@ async applyJob(req, res) {
 }
 
   // Company updates status
-  async updateStatus(req, res) {
-    try {
-      const { applicationId } = req.params;
-      const { status } = req.body;
+  // Company updates status
+async updateStatus(req, res) {
+  try {
+    const { applicationId } = req.params;
+    const { status } = req.body;
 
-      const application = await this.appRepo.updateStatus(applicationId, status);
-
-      if (!application) {
-        return res.status(404).json({ message: "Application not found" });
-      }
-
-      return res.status(200).json({
-        message: "Status updated",
-        application
+    // 🔥 Find full application with student + job + company
+    const application = await Application.findById(applicationId)
+      .populate({
+        path: "student",
+        populate: { path: "user" }
+      })
+      .populate({
+        path: "job",
+        populate: { path: "company" }
       });
 
-    } catch (err) {
-      console.error("Update Status Error:", err);
-      return res.status(500).json({ message: "Error updating status" });
+    if (!application) {
+      return res.status(404).json({ message: "Application not found" });
     }
+
+    // ✅ Update status
+    application.status = status;
+    await application.save();
+
+    const studentUserId = application.student.user._id;
+    const studentEmail = application.student.user.email;
+    const companyName = application.job.company.name;
+    const jobTitle = application.job.title;
+
+    // ===============================
+    // ✅ CREATE NOTIFICATION
+    // ===============================
+    await Notification.create({
+      user: studentUserId,
+      title: "Application Status Updated",
+      message: `Your application for ${jobTitle} at ${companyName} is now ${status}.`,
+    });
+
+    // ===============================
+    // ✅ SEND EMAIL
+    // ===============================
+    await sendEmail(
+      studentEmail,
+      "Application Status Updated",
+      `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+        <h2 style="color:#333;">Application Status Updated</h2>
+
+        <p>Hello,</p>
+
+        <p>
+          Your application for <b>${jobTitle}</b> at 
+          <b>${companyName}</b> has been updated to:
+        </p>
+
+        <p style="font-size:18px; color:#007bff;">
+          <b>${status.toUpperCase()}</b>
+        </p>
+
+        <p>Please login to your dashboard to check full details.</p>
+
+        <hr/>
+        <p style="font-size:12px; color:gray;">
+          JobTracker Team
+        </p>
+      </div>
+      `
+    );
+
+    return res.status(200).json({
+      message: "Status updated, notification & email sent",
+      application
+    });
+
+  } catch (err) {
+    console.error("Update Status Error:", err);
+    return res.status(500).json({ message: "Error updating status" });
   }
+}
 }
