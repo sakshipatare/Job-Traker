@@ -190,7 +190,7 @@ const Details = () => {
 
     {/* Left Section */}
     <div>
-      <h1 className="text-3xl font-bold text-fuchsia-400">
+      <h1 className="text-3xl font-bold bg-gradient-to-r from-fuchsia-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
         Student Profile
       </h1>
       <p className="text-slate-400 mt-2 text-sm">
@@ -220,12 +220,21 @@ const Details = () => {
 
   </motion.div>
 
-      <div className="max-w-4xl mx-auto bg-[#070017]/80 p-10 rounded-3xl border border-purple-500/40">
+      <div className="relative max-w-4xl mx-auto bg-[#070017]/80 p-10 rounded-3xl border border-purple-500/40 backdrop-blur shadow-[0_0_50px_rgba(168,85,247,0.45)] overflow-hidden">
+
+      {/*  Top Glow */}
+      <div className="pointer-events-none absolute -top-16 -right-16 h-56 w-56 rounded-full bg-fuchsia-500/30 blur-3xl" />
+
+      {/*  Bottom Glow */}
+      <div className="pointer-events-none absolute -bottom-16 -left-16 h-56 w-56 rounded-full bg-cyan-400/20 blur-3xl" />
+
+      {/*  Content Wrapper */}
+      <div className="relative z-10">
         <form onSubmit={handleSubmit} className="space-y-8">
 
           {/* Photo */}
           <div className="flex items-center gap-6">
-            <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-fuchsia-400">
+            <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-fuchsia-400 shadow-[0_0_20px_rgba(217,70,239,0.6)]">
               {photoPreview ? (
                 <img
                   src={photoPreview}
@@ -316,7 +325,7 @@ const Details = () => {
             <button
               type="button"
               onClick={() => setIsEditing(true)}
-              className="px-6 py-2.5 text-sm rounded-xl bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:shadow-[0_0_15px_#d946ef] transition-all"
+              className="px-6 py-2.5 text-sm rounded-xl bg-gradient-to-r from-fuchsia-500 via-purple-500 to-cyan-400 text-white font-semibold shadow-[0_0_25px_rgba(236,72,153,0.5)] hover:scale-[1.05] transition-all"
             >
               Update Profile
             </button>
@@ -326,8 +335,8 @@ const Details = () => {
                         type="submit"
                         disabled={isSubmitting}
                         className="flex items-center gap-2 px-6 py-3 rounded-xl 
-                        bg-emerald-500 hover:bg-emerald-600 transition 
-                        text-white font-medium disabled:opacity-50"
+                        bg-emerald-500 shadow-[0_0_25px_rgba(16,185,129,0.5)] 
+                        hover:scale-[1.05] transition text-white font-medium disabled:opacity-50"
                       >
                         <Save size={16} />
                         {isSubmitting ? "Saving..." : "Save"}
@@ -337,13 +346,15 @@ const Details = () => {
                          type="button"
                           onClick={handleCancel}
                         className="flex items-center gap-2 px-6 py-3 rounded-xl 
-                        bg-white/10 hover:bg-white/20 transition text-white"
+                          border border-purple-400/40 bg-white/5 text-slate-200 
+                          hover:bg-white/10 transition-all"
                       >
                         <X size={16} /> Cancel
                       </button>
                     </div>
           )}
         </form>
+      </div>
       </div>
     </div>
   );

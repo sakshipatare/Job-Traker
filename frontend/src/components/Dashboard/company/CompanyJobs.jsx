@@ -155,13 +155,19 @@ const CompanyJobs = () => {
 
       {/* Jobs List */}
       {jobs.length === 0 ? (
-        <div className="rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl p-16 text-center">
+        <div className="relative rounded-3xl border border-purple-500/40 bg-[#070017]/80 backdrop-blur shadow-[0_0_50px_rgba(129,140,248,0.45)] p-16 text-center overflow-hidden">
+
+        <div className="pointer-events-none absolute -top-10 -right-10 h-40 w-40 rounded-full bg-fuchsia-500/30 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-cyan-400/20 blur-3xl" />
+
+        <div className="relative z-10">
           <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Pencil className="w-8 h-8 text-slate-500" />
+            <Pencil className="w-8 h-8 text-fuchsia-400" />
           </div>
           <p className="text-xl font-semibold text-white mb-2">No jobs posted yet</p>
           <p className="text-slate-400">Start posting jobs to attract top talent</p>
         </div>
+      </div>
       ) : (
         <div className="grid gap-6">
           {jobs.map((job) => (
@@ -171,8 +177,10 @@ const CompanyJobs = () => {
               animate={{ opacity: 1, y: 0 }}
               whileHover={{ scale: 1.02 }}
               transition={{ type: "spring", stiffness: 200 }}
-              className="rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-8 hover:border-fuchsia-500/40 transition-all duration-300"
+              className="relative rounded-3xl border border-purple-500/40 bg-[#070017]/80 backdrop-blur shadow-[0_0_40px_rgba(236,72,153,0.35)] p-10 overflow-hidden hover:scale-[1.02] transition-all duration-300"
             >
+              <div className="pointer-events-none absolute -top-10 -right-10 h-32 w-32 rounded-full bg-fuchsia-500/30 blur-3xl" />
+              <div className="relative z-10">
               {editingJobId === job._id ? (
                 <>
                   <input
@@ -194,20 +202,20 @@ const CompanyJobs = () => {
                     name="salary"
                     value={formData.salary}
                     onChange={handleChange}
-                    className="w-full mb-3 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white"
+                    className="w-full mb-4 px-4 py-3 rounded-xl bg-white/5 border border-purple-500/30 focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-500/40 outline-none text-slate-200 transition-all"
                   />
 
                   <div className="flex gap-3 flex-wrap">
                     <button
                       onClick={() => handleUpdate(job._id)}
                       disabled={isSaving}
-                      className="px-5 py-2 rounded-xl bg-emerald-500 text-white disabled:opacity-50"
+                      className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.5)] text-white disabled:opacity-50 hover:scale-[1.05] transition-all"
                     >
                       <Save size={16} /> {isSaving ? "Saving..." : "Save"}
                     </button>
                     <button
                       onClick={() => setEditingJobId(null)}
-                      className="px-5 py-2 rounded-xl bg-white/10 text-white"
+                      className="flex items-center gap-2 px-6 py-2.5 rounded-xl border border-purple-400/40 bg-white/5 text-slate-200 hover:bg-white/10 transition-all"
                     >
                       <X size={16} /> Cancel
                     </button>
@@ -215,8 +223,8 @@ const CompanyJobs = () => {
                 </>
               ) : (
                 <>
-                  <h3 className="text-2xl font-bold text-white mb-4">{job.title}</h3>
-                  <div className="flex gap-6 text-slate-400 mb-4">
+                  <h3 className="text-2xl font-bold bg-gradient-to-r from-fuchsia-400 to-cyan-400 bg-clip-text text-transparent mb-4">{job.title}</h3>
+                  <div className="flex gap-6 text-slate-300 mb-6">
                     <div className="flex items-center gap-2">
                       <MapPin size={16} /> {job.location}
                     </div>
@@ -230,27 +238,28 @@ const CompanyJobs = () => {
                   <div className="flex gap-3 flex-wrap">
                     <button
                       onClick={() => navigate(`/applicants/${job._id}`)}
-                      className="px-5 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white"
+                      className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-fuchsia-500 via-purple-500 to-cyan-400 text-white font-semibold shadow-[0_0_25px_rgba(236,72,153,0.5)] hover:scale-[1.05] transition-all"
                     >
                       <Users size={16} /> View Applicants
                     </button>
 
                     <button
                       onClick={() => handleEditClick(job)}
-                      className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/20 text-white"
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-purple-400/40 bg-white/5 text-slate-200 hover:bg-white/10 transition-all"
                     >
                       <Pencil size={16} /> Update
                     </button>
 
                     <button
                       onClick={() => handleDelete(job._id)}
-                      className="flex items-center gap-2 px-4 py-2 rounded-xl border border-red-500/40 text-red-400"
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-red-500/40 bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all"
                     >
                       <X size={16} /> Delete
                     </button>
                   </div>
                 </>
               )}
+              </div>
             </motion.div>
           ))}
         </div>

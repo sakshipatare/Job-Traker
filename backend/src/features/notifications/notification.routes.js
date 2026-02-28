@@ -21,7 +21,7 @@ notificationRouter.patch("/:id/read", authMiddleware, async (req, res) => {
         _id: req.params.id,
         user: req.user._id,   // 🔥 ensures ownership
       },
-      { isRead: true },
+      { isRead: true, readAt: new Date() },
       { new: true }
     );
 

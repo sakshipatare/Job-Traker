@@ -297,29 +297,20 @@ const CompanyDetails = () => {
 
     <div className="grid lg:grid-cols-3 gap-8">
 
-      {/* Left Panel */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="group relative overflow-hidden lg:col-span-2 rounded-2xl 
-        bg-white/5 backdrop-blur-xl border border-white/10 
-        p-8 shadow-2xl hover:border-fuchsia-500/30 
-        transition-all duration-500"
-      >
-        <Glow
-          variant="top"
-          color="purple"
-          className="opacity-30 group-hover:opacity-50 transition duration-500 pointer-events-none"
-        />
-        <div className="relative z-10">
+    {/* Company Info Card - PostJob Style */}
+    <div className="relative lg:col-span-2 rounded-3xl border border-purple-500/40 bg-[#070017]/80 backdrop-blur shadow-[0_0_50px_rgba(129,140,248,0.45)] p-10 overflow-hidden">
+
+      {/* Glow Background */}
+      <div className="pointer-events-none absolute -top-10 -right-10 h-40 w-40 rounded-full bg-fuchsia-500/30 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-cyan-400/20 blur-3xl" />
+
+      <div className="relative z-10">
         <h2 className="text-lg font-semibold mb-8 flex items-center gap-2 text-white">
-          <Building2 size={18} /> Company Information
+          <Building2 size={18} className="text-fuchsia-400" />
+          Company Information
         </h2>
 
         <div className="space-y-8">
-
-          {/* Name */}
           <InfoField
             label="Company Name"
             icon={<Building2 size={18} />}
@@ -330,7 +321,6 @@ const CompanyDetails = () => {
             setFormData={setFormData}
           />
 
-          {/* Location */}
           <InfoField
             label="Location"
             icon={<MapPin size={18} />}
@@ -341,7 +331,6 @@ const CompanyDetails = () => {
             setFormData={setFormData}
           />
 
-          {/* Website */}
           <InfoField
             label="Website"
             icon={<Globe size={18} />}
@@ -352,23 +341,24 @@ const CompanyDetails = () => {
             setFormData={setFormData}
           />
         </div>
-        </div>
-      </motion.div>
-
-      {/* Stats Panel */}
-      <div className="space-y-6">
-        <StatCard
-          icon={<Briefcase size={18} />}
-          label="Total Jobs"
-          value={stats.totalJobs}
-        />
-        <StatCard
-          icon={<Users size={18} />}
-          label="Total Applicants"
-          value={stats.totalApplicants}
-        />
       </div>
     </div>
+
+    {/* Stats Section */}
+    <div className="space-y-6">
+      <StatCard
+        icon={<Briefcase size={18} />}
+        label="Total Jobs"
+        value={stats.totalJobs}
+      />
+      <StatCard
+        icon={<Users size={18} />}
+        label="Total Applicants"
+        value={stats.totalApplicants}
+      />
+    </div>
+
+  </div>
   </div>
 );
 };
@@ -443,49 +433,24 @@ const InfoField = ({
 );
 
 const StatCard = ({ icon, label, value }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    whileHover={{ scale: 1.06 }}
-    transition={{ type: "spring", stiffness: 200 }}
-    className="group relative overflow-hidden rounded-2xl 
-    bg-white/5 backdrop-blur-xl border border-white/10 
-    p-6 cursor-pointer
-    hover:border-fuchsia-500/40
-    transition-all duration-500"
-  >
-    {/* Default Glow */}
-    <Glow
-      variant="top"
-      color="violet"
-      className="opacity-30 group-hover:opacity-0 transition duration-500 pointer-events-none"
-    />
+  <div className="relative rounded-3xl border border-purple-500/40 bg-[#070017]/80 backdrop-blur shadow-[0_0_40px_rgba(236,72,153,0.35)] p-8 overflow-hidden hover:scale-[1.04] transition-all duration-300">
 
-    {/* Hover Glow */}
-    <Glow
-      variant="top"
-      color="pink"
-      className="opacity-0 group-hover:opacity-70 transition duration-500 pointer-events-none"
-    />
+    {/* Glow */}
+    <div className="pointer-events-none absolute -top-8 -right-8 h-32 w-32 rounded-full bg-fuchsia-500/30 blur-3xl" />
 
     <div className="relative z-10">
-      <div className="flex items-center gap-3 text-slate-300 mb-3">
-        <span className="text-fuchsia-400 group-hover:scale-110 transition-transform duration-300">
+      <div className="flex items-center gap-3 text-slate-300 mb-4">
+        <span className="text-fuchsia-400">
           {icon}
         </span>
-        <span className="text-sm">{label}</span>
+        <span className="text-sm tracking-wide">{label}</span>
       </div>
 
-      <motion.div
-        key={value}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-4xl font-bold text-white"
-      >
+      <div className="text-4xl font-bold bg-gradient-to-r from-fuchsia-400 to-cyan-400 bg-clip-text text-transparent">
         {value}
-      </motion.div>
+      </div>
     </div>
-  </motion.div>
+  </div>
 );
 
 export default CompanyDetails;

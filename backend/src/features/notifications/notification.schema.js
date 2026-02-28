@@ -19,8 +19,16 @@ const notificationSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    readAt: {
+      type: Date,
+    },
   },
   { timestamps: true }
+);
+
+notificationSchema.index(
+  { readAt: 1 },
+  { expireAfterSeconds: 86400 } // 1 day
 );
 
 export const Notification = mongoose.model(
