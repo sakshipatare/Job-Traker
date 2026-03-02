@@ -18,6 +18,7 @@ import {
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const Job = () => {
   const [jobs, setJobs] = useState([]);
@@ -71,38 +72,16 @@ const Job = () => {
     }
   };
 
-  const handleApply = async (jobId) => {
+  const handleApply = (jobId) => {
+  const token = localStorage.getItem("token");
 
-  // 🔐 If user not logged in → redirect to signup
   if (!token) {
-    navigate("/signup");
+    // Redirect guest to login page
+    navigate("/login");
     return;
   }
 
-  try {
-    const response = await fetch(
-      `http://localhost:5000/applications/${jobId}/apply`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    const data = await response.json();
-
-    if (response.ok) {
-      setMessage({ type: "success", text: "Applied successfully!" });
-      setAppliedJobs(new Set([...appliedJobs, jobId]));
-      setTimeout(() => setMessage(""), 3000);
-    } else {
-      setMessage({ type: "error", text: data.message || "Failed to apply" });
-    }
-  } catch (error) {
-    console.error("Apply error:", error);
-    setMessage({ type: "error", text: "Failed to apply to job" });
-  }
+  // If logged in, do nothing here — actual apply happens in dashboard
 };
 
   // if (loading) {
@@ -424,27 +403,16 @@ const Job = () => {
 
                 {/* Card Footer */}
                 <div className="px-6 py-4 border-t border-purple-500/20 flex gap-3">
+                <Link to="/signup" className="flex-1">
                   <button
-                    onClick={() => handleApply(job._id)}
-                    disabled={appliedJobs.has(job._id)}
-                    className={`flex-1 font-semibold py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2 ${
-                      appliedJobs.has(job._id)
-                        ? "bg-emerald-500/15 text-emerald-100 border border-emerald-400/30 cursor-not-allowed"
-                        : "bg-gradient-to-r from-fuchsia-500 via-purple-500 to-cyan-400 text-white hover:shadow-[0_0_25px_rgba(236,72,153,0.45)] hover:scale-[1.02]"
-                    }`}
+                    type="button"
+                    // onClick={() => handleApply(job._id)}
+                    className="w-full flex-1 font-semibold py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2 bg-gradient-to-r from-fuchsia-500 via-purple-500 to-cyan-400 text-white hover:shadow-[0_0_25px_rgba(236,72,153,0.45)] hover:scale-[1.02]"
                   >
-                    {appliedJobs.has(job._id) ? (
-                      <>
-                        <CheckCircle className="w-4 h-4" />
-                        <span>Applied</span>
-                      </>
-                    ) : (
-                      <>
-                        <Briefcase className="w-4 h-4" />
-                        <span>Apply</span>
-                      </>
-                    )}
+                    <Briefcase className="w-4 h-4" />
+                    <span>Apply</span>
                   </button>
+                  </Link>
 
                   <button
                     onClick={() => setSelectedJob(job)}
@@ -638,27 +606,28 @@ const Job = () => {
 
               {/* Modal Footer */}
               <div className="sticky bottom-0 bg-[#070017]/80 border-t border-purple-500/20 px-6 md:px-8 py-4 flex gap-3 backdrop-blur">
-                <button
-                  onClick={() => handleApply(selectedJob._id)}
-                  disabled={appliedJobs.has(selectedJob._id)}
-                  className={`flex-1 font-semibold py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 ${
-                    appliedJobs.has(selectedJob._id)
-                      ? "bg-emerald-500/15 text-emerald-100 border border-emerald-400/30 cursor-not-allowed"
-                      : "bg-gradient-to-r from-fuchsia-500 via-purple-500 to-cyan-400 text-white hover:shadow-[0_0_25px_rgba(236,72,153,0.45)] hover:scale-[1.01]"
-                  }`}
-                >
-                  {appliedJobs.has(selectedJob._id) ? (
-                    <>
-                      <CheckCircle className="w-5 h-5" />
-                      <span>Already Applied</span>
-                    </>
-                  ) : (
-                    <>
-                      <Briefcase className="w-5 h-5" />
-                      <span>Apply Now</span>
-                    </>
-                  )}
-                </button>
+                <Link to="/signup" className="flex-1">
+                  <button
+                    className={`w-full font-semibold py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 ${
+                      appliedJobs.has(selectedJob._id)
+                        ? "bg-emerald-500/15 text-emerald-100 border border-emerald-400/30 cursor-not-allowed"
+                        : "bg-gradient-to-r from-fuchsia-500 via-purple-500 to-cyan-400 text-white hover:shadow-[0_0_25px_rgba(236,72,153,0.45)] hover:scale-[1.01]"
+                    }`}
+                  >
+                    {appliedJobs.has(selectedJob._id) ? (
+                      <>
+                        <CheckCircle className="w-5 h-5" />
+                        <span>Already Applied</span>
+                      </>
+                    ) : (
+                      <>
+                        <Briefcase className="w-5 h-5" />
+                        <span>Apply Now</span>
+                      </>
+                    )}
+                  </button>
+                </Link>
+
                 <button
                   onClick={() => setSelectedJob(null)}
                   className="px-6 font-semibold py-3 bg-white/5 border border-purple-500/30 text-slate-100 rounded-xl hover:bg-white/10 hover:border-fuchsia-400/60 transition-all"
