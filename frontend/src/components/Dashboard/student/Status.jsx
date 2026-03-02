@@ -1,5 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Info, X, Building2, MapPin, Calendar, DollarSign, AlertCircle, CheckCircle, Clock, XCircle, Briefcase, FileText, Code } from "lucide-react";
+import {
+  X,
+  Building2,
+  MapPin,
+  Calendar,
+  DollarSign,
+  CheckCircle,
+  Clock,
+  XCircle,
+  Briefcase,
+  Loader,
+} from "lucide-react";
+import { motion } from "framer-motion";
 
 const Status = () => {
   const [jobs, setJobs] = useState([]);
@@ -15,87 +27,49 @@ const Status = () => {
   }, []);
 
   const fetchData = async () => {
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const jobsRes = await fetch("http://localhost:5000/jobs", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+      const jobsRes = await fetch("http://localhost:5000/jobs", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-    const appRes = await fetch("http://localhost:5000/applications/me", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+      const appRes = await fetch("http://localhost:5000/applications/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-    const statsRes = await fetch("http://localhost:5000/students/stats", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+      const statsRes = await fetch("http://localhost:5000/students/stats", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-    const jobsData = await jobsRes.json();
-    const appData = await appRes.json();
-    const statsData = await statsRes.json();
+      const jobsData = await jobsRes.json();
+      const appData = await appRes.json();
+      const statsData = await statsRes.json();
 
-    if (jobsRes.ok) {
-      if (Array.isArray(jobsData)) {
-        setJobs(jobsData);           // old format
-      } else {
-        setJobs(jobsData.jobs || []); // new paginated format
-      }
+      if (jobsRes.ok) setJobs(Array.isArray(jobsData) ? jobsData : jobsData.jobs || []);
+      if (appRes.ok) setApplications(appData);
+      if (statsRes.ok) setStats(statsData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
     }
-    if (appRes.ok) setApplications(appData);
-    if (statsRes.ok) setStats(statsData);
-
-  } catch (error) {
-    console.error("Error fetching data:", error);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const getStatusConfig = (status) => {
     const configs = {
-      pending: {
-        color: "from-yellow-500 to-amber-500",
-        bgColor: "bg-yellow-50",
-        textColor: "text-yellow-700",
-        borderColor: "border-yellow-200",
-        icon: Clock,
-        label: "Pending"
-      },
-      selected: {
-        color: "from-emerald-500 to-teal-500",
-        bgColor: "bg-emerald-50",
-        textColor: "text-emerald-700",
-        borderColor: "border-emerald-200",
-        icon: CheckCircle,
-        label: "Selected"
-      },
-      rejected: {
-        color: "from-red-500 to-rose-500",
-        bgColor: "bg-red-50",
-        textColor: "text-red-700",
-        borderColor: "border-red-200",
-        icon: XCircle,
-        label: "Rejected"
-      },
-      shortlisted: {
-        color: "from-blue-500 to-cyan-500",
-        bgColor: "bg-blue-50",
-        textColor: "text-blue-700",
-        borderColor: "border-blue-200",
-        icon: CheckCircle,
-        label: "Shortlisted"
-      }
+      pending: { color: "text-yellow-400", bg: "bg-yellow-500/10 border-yellow-500/30", icon: Clock },
+      selected: { color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/30", icon: CheckCircle },
+      rejected: { color: "text-red-400", bg: "bg-red-500/10 border-red-500/30", icon: XCircle },
+      shortlisted: { color: "text-blue-400", bg: "bg-blue-500/10 border-blue-500/30", icon: CheckCircle },
     };
     return configs[status] || configs.pending;
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Loading applications...</p>
-        </div>
+      <div className="flex justify-center py-16">
+        <Loader className="animate-spin w-8 h-8 text-fuchsia-400" />
       </div>
     );
   }
@@ -104,273 +78,152 @@ const Status = () => {
     applications.some((app) => app.job === job._id || app.job?._id === job._id)
   );
 
-  // const stats = [
-  //   { label: "Total Applications", value: appliedJobs.length, color: "from-blue-500 to-cyan-500" },
-  //   { label: "Selected", value: applications.filter(a => a.status === "selected").length, color: "from-emerald-500 to-teal-500" },
-  //   { label: "Pending", value: applications.filter(a => a.status === "pending").length, color: "from-yellow-500 to-amber-500" },
-  //   { label: "Rejected", value: applications.filter(a => a.status === "rejected").length, color: "from-red-500 to-rose-500" }
-  // ];
-
   return (
-    <div className="py-4">
-      <div>
-        {/* Header */}
-        <div className="mb-12">
-          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-3">
-            Application Status
-          </h1>
-          <p className="text-lg text-gray-600">Track all your job applications in one place</p>
-        </div>
+    <div className="px-6 pt-6 pb-20">
 
-        {/* Stats Grid */}
-        {stats && stats.totalApplications > 0 && (
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-              <div className="text-4xl font-bold text-blue-600 mb-2">
-                {stats.totalApplications}
-              </div>
-              <p className="text-gray-600 font-medium">Total Applications</p>
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-              <div className="text-4xl font-bold text-emerald-600 mb-2">
-                {stats.selectedApplications || 0}
-              </div>
-              <p className="text-gray-600 font-medium">Selected</p>
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-              <div className="text-4xl font-bold text-yellow-600 mb-2">
-                {stats.pendingApplications || 0}
-              </div>
-              <p className="text-gray-600 font-medium">Pending</p>
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-              <div className="text-4xl font-bold text-red-600 mb-2">
-                {stats.rejectedApplications || 0}
-              </div>
-              <p className="text-gray-600 font-medium">Rejected</p>
-            </div>
-
-          </div>
-        )}
-
-        {/* Applications Grid */}
-        {appliedJobs.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {appliedJobs.map((job) => {
-              const application = applications.find(
-                (app) => app.job === job._id || app.job?._id === job._id
-              );
-              const statusConfig = getStatusConfig(application?.status);
-              const StatusIcon = statusConfig.icon;
-
-              return (
-                <div
-                  key={job._id}
-                  className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl border border-gray-100 hover:border-blue-200 transition-all duration-300 overflow-hidden hover:-translate-y-2"
-                >
-                  {/* Card Header */}
-                  <div className="bg-gradient-to-r from-blue-600 to-cyan-600 px-6 py-4">
-                    <h3 className="font-bold text-lg text-white line-clamp-2">
-                      {job.title}
-                    </h3>
-                  </div>
-
-                  {/* Card Body */}
-                  <div className="p-6 space-y-4">
-                    {/* Company */}
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Building2 className="w-5 h-5 text-blue-600" />
-                      </div>
-                      <span className="text-gray-800 font-medium">{job.company?.name}</span>
-                    </div>
-
-                    {/* Location */}
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-cyan-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <MapPin className="w-5 h-5 text-cyan-600" />
-                      </div>
-                      <span className="text-gray-700">{job.location}</span>
-                    </div>
-
-                    {/* Status Badge */}
-                    <div className={`flex items-center space-x-2 px-4 py-3 rounded-xl ${statusConfig.bgColor} border ${statusConfig.borderColor}`}>
-                      <StatusIcon className={`w-5 h-5 ${statusConfig.textColor}`} />
-                      <span className={`font-bold ${statusConfig.textColor} capitalize`}>
-                        {application?.status || "Unknown"}
-                      </span>
-                    </div>
-
-                    {/* Applied Date */}
-                    <div className="flex items-center space-x-2 text-sm text-gray-500">
-                      <Calendar className="w-4 h-4" />
-                      <span>
-                        {application?.appliedAt
-                          ? new Date(application.appliedAt).toLocaleDateString()
-                          : "N/A"}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Card Footer */}
-                  <div className="px-6 py-4 border-t border-gray-100">
-                    <button
-                      onClick={() => setSelectedJob(job)}
-                      className="w-full flex items-center justify-center space-x-2 text-blue-600 hover:text-blue-700 font-semibold hover:bg-blue-50 py-2 rounded-lg transition-all"
-                    >
-                      <Info className="w-4 h-4" />
-                      <span>View Details</span>
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-12 text-center">
-            <Briefcase className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-600 text-lg font-medium mb-2">No applications yet</p>
-            <p className="text-gray-500">Start applying to jobs to track your application status here.</p>
-          </div>
-        )}
+      {/* Header */}
+      <div className="mb-12">
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-fuchsia-400 to-purple-500 bg-clip-text text-transparent">
+          Application Status
+        </h1>
+        <p className="text-slate-400 mt-2">Track all your job applications</p>
       </div>
+
+      {/* Stats */}
+      {stats && stats.totalApplications > 0 && (
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          {[
+            { label: "Total", value: stats.totalApplications },
+            { label: "Selected", value: stats.selectedApplications || 0 },
+            { label: "Pending", value: stats.pendingApplications || 0 },
+            { label: "Rejected", value: stats.rejectedApplications || 0 },
+          ].map((item, i) => (
+            <div
+              key={i}
+              className="relative bg-[#070017]/80 backdrop-blur-xl p-6 rounded-3xl border border-purple-500/40 overflow-hidden shadow-[0_0_50px_rgba(129,140,248,0.25)]"
+            >
+              {/* Glow */}
+              <div className="absolute -top-8 -right-8 h-24 w-24 rounded-full bg-fuchsia-500/20 blur-3xl pointer-events-none" />
+              <div className="relative z-10">
+                <div className="text-3xl font-bold text-fuchsia-400">{item.value}</div>
+                <p className="text-slate-400 text-sm mt-1">{item.label}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Applications Grid */}
+      {appliedJobs.length > 0 ? (
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {appliedJobs.map((job) => {
+            const application = applications.find(
+              (app) => app.job === job._id || app.job?._id === job._id
+            );
+
+            const statusConfig = getStatusConfig(application?.status);
+            const StatusIcon = statusConfig.icon;
+
+            return (
+              <motion.div
+                key={job._id}
+                whileHover={{ y: -5 }}
+                className="relative bg-[#070017]/80 backdrop-blur-xl rounded-3xl border border-purple-500/40 p-6 overflow-hidden shadow-[0_0_50px_rgba(129,140,248,0.25)]"
+              >
+                {/* Glow blobs */}
+                <div className="absolute -top-10 -right-10 h-32 w-32 rounded-full bg-fuchsia-500/20 blur-3xl pointer-events-none" />
+                <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-cyan-400/20 blur-3xl pointer-events-none" />
+
+                <div className="relative z-10 space-y-4">
+                  <h3 className="text-lg font-semibold text-white">{job.title}</h3>
+
+                  <div className="flex items-center gap-2 text-slate-400 text-sm">
+                    <Building2 size={16} />
+                    {job.company?.name}
+                  </div>
+
+                  <div className="flex items-center gap-2 text-slate-400 text-sm">
+                    <MapPin size={16} />
+                    {job.location}
+                  </div>
+
+                  {/* Status Badge */}
+                  <div
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl border ${statusConfig.bg}`}
+                  >
+                    <StatusIcon size={16} className={statusConfig.color} />
+                    <span className={`${statusConfig.color} font-medium capitalize`}>
+                      {application?.status}
+                    </span>
+                  </div>
+
+                  <button
+                    onClick={() => setSelectedJob(job)}
+                    className="w-full mt-4 py-2 rounded-xl bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:shadow-[0_0_25px_#d946ef] transition-all text-sm font-medium text-white"
+                  >
+                    View Details
+                  </button>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="bg-[#070017]/80 backdrop-blur-xl border border-purple-500/40 p-12 rounded-3xl text-center relative shadow-[0_0_50px_rgba(129,140,248,0.25)]">
+          <div className="absolute -top-10 -right-10 h-32 w-32 rounded-full bg-fuchsia-500/20 blur-3xl pointer-events-none" />
+          <Briefcase className="mx-auto mb-4 text-slate-500" size={40} />
+          <p className="text-slate-400">No applications yet</p>
+        </div>
+      )}
 
       {/* Modal */}
       {selectedJob && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-gray-100">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center p-4 z-50">
+          <div className="relative bg-[#070017]/90 border border-purple-500/30 rounded-3xl w-full max-w-2xl p-8 overflow-y-auto max-h-[90vh] shadow-[0_0_50px_rgba(129,140,248,0.35)]">
+            {/* Glow */}
+            <div className="absolute -top-12 -right-12 h-40 w-40 rounded-full bg-fuchsia-500/20 blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-12 -left-12 h-32 w-32 rounded-full bg-cyan-400/20 blur-3xl pointer-events-none" />
 
-            {/* Header */}
-            <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-cyan-600 px-8 py-6 flex justify-between items-start rounded-t-2xl">
+            <div className="relative z-10 space-y-6">
+              <div className="flex justify-between items-start">
+                <h2 className="text-2xl font-bold text-fuchsia-400">{selectedJob.title}</h2>
+                <button onClick={() => setSelectedJob(null)} className="text-slate-400 hover:text-white">
+                  <X />
+                </button>
+              </div>
+
+              <div className="space-y-3 text-slate-300 text-sm">
+                <div className="flex gap-2 items-center">
+                  <Building2 size={16} />
+                  {selectedJob.company?.name}
+                </div>
+                <div className="flex gap-2 items-center">
+                  <MapPin size={16} />
+                  {selectedJob.location}
+                </div>
+                <div className="flex gap-2 items-center">
+                  <DollarSign size={16} />
+                  ₹{selectedJob.salary?.toLocaleString()}
+                </div>
+                <div className="flex gap-2 items-center">
+                  <Calendar size={16} />
+                  {new Date(selectedJob.createdAt).toLocaleDateString()}
+                </div>
+              </div>
+
               <div>
-                <h2 className="text-3xl font-bold text-white mb-1">
-                  {selectedJob.title}
-                </h2>
-                <p className="text-blue-100 text-sm">Full application details</p>
-              </div>
-              <button
-                onClick={() => setSelectedJob(null)}
-                className="text-white hover:bg-white/20 p-2 rounded-lg transition-all flex-shrink-0"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            {/* Body */}
-            <div className="p-8 space-y-8">
-              {/* Application Status */}
-              {applications.find((app) => app.job === selectedJob._id || app.job?._id === selectedJob._id) && (
-                <div className="border-b border-gray-200 pb-8">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4">Status</h3>
-                  {(() => {
-                    const app = applications.find((app) => app.job === selectedJob._id || app.job?._id === selectedJob._id);
-                    const statusConfig = getStatusConfig(app?.status);
-                    const StatusIcon = statusConfig.icon;
-                    return (
-                      <div className={`flex items-center space-x-3 px-6 py-4 rounded-xl ${statusConfig.bgColor} border ${statusConfig.borderColor}`}>
-                        <StatusIcon className={`w-6 h-6 ${statusConfig.textColor}`} />
-                        <span className={`text-xl font-bold ${statusConfig.textColor} capitalize`}>
-                          {app?.status}
-                        </span>
-                      </div>
-                    );
-                  })()}
-                </div>
-              )}
-
-              {/* Company Info */}
-              <div className="border-b border-gray-200 pb-8">
-                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center space-x-2">
-                  <Building2 className="w-5 h-5 text-blue-600" />
-                  <span>Company Information</span>
-                </h3>
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-1">Company Name</p>
-                    <p className="text-lg text-gray-900 font-medium">{selectedJob.company?.name}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-1">Location</p>
-                    <p className="text-lg text-gray-900 font-medium">{selectedJob.company?.location}</p>
-                  </div>
-                  {selectedJob.company?.website && (
-                    <div className="md:col-span-2">
-                      <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-1">Website</p>
-                      <a
-                        href={selectedJob.company.website}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-blue-600 hover:text-blue-700 underline text-lg"
-                      >
-                        {selectedJob.company.website}
-                      </a>
-                    </div>
-                  )}
-                </div>
+                <h3 className="text-fuchsia-400 font-semibold mb-2">Description</h3>
+                <p className="text-slate-400 text-sm whitespace-pre-wrap">{selectedJob.description}</p>
               </div>
 
-              {/* Job Info */}
-              <div className="border-b border-gray-200 pb-8">
-                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center space-x-2">
-                  <Briefcase className="w-5 h-5 text-cyan-600" />
-                  <span>Job Details</span>
-                </h3>
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-1">Location</p>
-                    <div className="flex items-center space-x-2 text-lg text-gray-900">
-                      <MapPin className="w-5 h-5 text-cyan-600" />
-                      <span>{selectedJob.location}</span>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-1">Salary</p>
-                    <div className="flex items-center space-x-2 text-lg text-gray-900">
-                      <DollarSign className="w-5 h-5 text-emerald-600" />
-                      <span>₹{selectedJob.salary?.toLocaleString()}</span>
-                    </div>
-                  </div>
-                  <div className="md:col-span-2">
-                    <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-1">Posted</p>
-                    <div className="flex items-center space-x-2 text-lg text-gray-900">
-                      <Calendar className="w-5 h-5 text-orange-600" />
-                      <span>{new Date(selectedJob.createdAt).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric"
-                      })}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Description */}
-              <div className="border-b border-gray-200 pb-8">
-                <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center space-x-2">
-                  <FileText className="w-5 h-5 text-purple-600" />
-                  <span>Description</span>
-                </h3>
-                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                  {selectedJob.description}
-                </p>
-              </div>
-
-              {/* Skills */}
-              {selectedJob.skills && selectedJob.skills.length > 0 && (
+              {selectedJob.skills?.length > 0 && (
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center space-x-2">
-                    <Code className="w-5 h-5 text-orange-600" />
-                    <span>Required Skills</span>
-                  </h3>
-                  <div className="flex flex-wrap gap-3">
+                  <h3 className="text-fuchsia-400 font-semibold mb-2">Required Skills</h3>
+                  <div className="flex flex-wrap gap-2">
                     {selectedJob.skills.map((skill, index) => (
                       <span
                         key={index}
-                        className="px-4 py-2 bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700 font-semibold rounded-full border border-blue-200"
+                        className="px-3 py-1 text-xs rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300"
                       >
                         {skill}
                       </span>
@@ -378,16 +231,6 @@ const Status = () => {
                   </div>
                 </div>
               )}
-            </div>
-
-            {/* Footer */}
-            <div className="bg-gray-50 border-t border-gray-200 px-8 py-4 flex gap-3">
-              <button
-                onClick={() => setSelectedJob(null)}
-                className="flex-1 px-6 font-semibold py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all"
-              >
-                Close
-              </button>
             </div>
           </div>
         </div>
