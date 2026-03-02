@@ -120,5 +120,39 @@ if (req.files?.profilePhoto?.length > 0) {
   }
 }
 
+async toggleSaveJob(req, res) {
+  try {
+    const { jobId } = req.params;
+
+    const result = await this.studentRepo.toggleSaveJob(
+      req.user._id,
+      jobId
+    );
+
+    return res.status(200).json({
+      message: result.isSaved
+        ? "Job saved successfully"
+        : "Job removed from saved",
+      savedJobs: result.savedJobs
+    });
+
+  } catch (error) {
+    console.error("Toggle Save Job Error:", error);
+    return res.status(500).json({ message: error.message });
+  }
+}
+
+async getSavedJobs(req, res) {
+  try {
+    const savedJobs = await this.studentRepo.getSavedJobs(req.user._id);
+
+    return res.status(200).json(savedJobs);
+
+  } catch (error) {
+    console.error("Get Saved Jobs Error:", error);
+    return res.status(500).json({ message: error.message });
+  }
+}
+
 
 }

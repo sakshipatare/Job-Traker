@@ -32,4 +32,18 @@ studentRouter.get(
   (req, res) => StudentController.getStudentStats(req, res)
 );
 
+studentRouter.post(
+  "/save-job/:jobId",
+  authMiddleware,
+  authorizeRole("student"),
+  (req, res) => StudentController.toggleSaveJob(req, res)
+);
+
+studentRouter.get(
+  "/saved-jobs",
+  authMiddleware,
+  authorizeRole("student"),
+  (req, res) => StudentController.getSavedJobs(req, res)
+);
+
 export default studentRouter;

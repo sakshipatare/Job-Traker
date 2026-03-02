@@ -10,7 +10,8 @@ export default class applicationRepo {
   });
 
   if (existing) {
-    throw new Error("Already applied");
+    // throw new Error("Already applied");
+    return { alreadyApplied: true };
   }
 
   const application = new Application(data);

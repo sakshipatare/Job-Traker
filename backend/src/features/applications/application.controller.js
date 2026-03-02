@@ -68,11 +68,17 @@ async applyJob(req, res) {
     //   await application.save();
     // }
 
+    if (application?.alreadyApplied) {
+      return res.status(400).json({
+        message: "You have already applied for this job."
+      });
+    }
+
     return res.status(201).json({
       message: "Applied successfully",
       matchPercentage,
       status,
-      application
+      application: application,
     });
 
   } catch (err) {

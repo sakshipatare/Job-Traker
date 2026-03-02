@@ -12,7 +12,8 @@ import {
   Code,
   Loader,
   Search,
-  Sliders
+  Sliders,
+  Heart,
 } from "lucide-react";
 
 const Apply = () => {
@@ -32,10 +33,63 @@ const Apply = () => {
     minSalary: ""
   });
   const [showFilters, setShowFilters] = useState(false);
+  const [savedJobs, setSavedJobs] = useState(new Set());
+  const [showSavedOnly, setShowSavedOnly] = useState(false);
+
+  useEffect(() => {
+  fetchSavedJobs();
+}, []);
 
   useEffect(() => {
     fetchJobs();
   }, [page, searchTerm, filters]);
+
+  const fetchSavedJobs = async () => {
+  try {
+    const response = await fetch(
+      "http://localhost:5000/students/saved-jobs",
+      {
+        headers: { Authorization: `Bearer ${token}` }
+      }
+    );
+
+    const data = await response.json();
+
+    if (response.ok) {
+      const ids = data.map(job => job._id);
+      setSavedJobs(new Set(ids));
+    }
+  } catch (error) {
+    console.error("Error fetching saved jobs:", error);
+  }
+};
+
+const handleToggleSave = async (jobId) => {
+  try {
+    const response = await fetch(
+      `http://localhost:5000/students/save-job/${jobId}`,
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` }
+      }
+    );
+
+    if (response.ok) {
+      setSavedJobs(prev => {
+        const updated = new Set(prev);
+        if (updated.has(jobId)) {
+          updated.delete(jobId);
+        } else {
+          updated.add(jobId);
+        }
+        return updated;
+      });
+    }
+
+  } catch (error) {
+    console.error("Save job error:", error);
+  }
+};
 
   const fetchJobs = async () => {
     try {
@@ -70,31 +124,42 @@ const Apply = () => {
   };
 
   const handleApply = async (jobId) => {
-    try {
-      const response = await fetch(
-        `http://localhost:5000/applications/${jobId}/apply`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setMessage({ type: "success", text: "Applied successfully!" });
-        setAppliedJobs(new Set([...appliedJobs, jobId]));
-        setTimeout(() => setMessage(""), 3000);
-      } else {
-        setMessage({ type: "error", text: data.message || "Failed to apply" });
+  try {
+    const response = await fetch(
+      `http://localhost:5000/applications/${jobId}/apply`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }
-    } catch (error) {
-      console.error("Apply error:", error);
-      setMessage({ type: "error", text: "Failed to apply to job" });
+    );
+
+    const data = await response.json();
+
+    // ✅ If already applied (400)
+    if (response.status === 400) {
+      setMessage({ type: "error", text: data.message });
+      return;
     }
-  };
+
+    // ✅ Success
+    if (response.ok) {
+      setMessage({ type: "success", text: data.message || "Applied successfully!" });
+
+      // safer state update
+      setAppliedJobs((prev) => new Set(prev).add(jobId));
+
+      setTimeout(() => setMessage(""), 3000);
+    } else {
+      setMessage({ type: "error", text: data.message || "Failed to apply" });
+    }
+
+  } catch (error) {
+    console.error("Apply error:", error);
+    setMessage({ type: "error", text: "Server error. Try again." });
+  }
+};
 
   // if (loading) {
   //   return (
@@ -115,16 +180,34 @@ const Apply = () => {
 
   const hasActiveFilters = searchTerm || filters.title || filters.location || filters.minSalary;
 
+  const displayedJobs = showSavedOnly
+  ? jobs.filter(job => savedJobs.has(job._id))
+  : jobs;
+
   return (
     <div className="py-4">
       <div>
         {/* Header */}
-        <div className="mb-12">
+        <div className="flex justify-between items-center mb-12">
+        <div>
           <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-fuchsia-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent mb-3">
-            Explore Jobs
+            {showSavedOnly ? "Saved Jobs" : "Explore Jobs"}
           </h1>
-          <p className="text-slate-400">Find and apply to opportunities that match your skills</p>
+          <p className="text-slate-400">
+            {showSavedOnly
+              ? "Your bookmarked opportunities"
+              : "Find and apply to opportunities that match your skills"}
+          </p>
         </div>
+
+        <button
+          onClick={() => setShowSavedOnly(!showSavedOnly)}
+          className="flex items-center gap-2 px-5 py-3 rounded-xl bg-white/5 border border-purple-500/40 text-slate-100 hover:border-fuchsia-400/60 transition-all"
+        >
+          <Heart className="w-5 h-5" />
+          {showSavedOnly ? "Back to All Jobs" : "Saved Jobs"}
+        </button>
+      </div>
 
         {/* Message Alert */}
         {message && (
@@ -329,9 +412,9 @@ const Apply = () => {
                     <Loader className="animate-spin w-8 h-8 text-fuchsia-300" />
                   </div>
                 ) :
-                jobs.length > 0 ? (
+                displayedJobs.length > 0 ? (
                   <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {jobs.map((job) => (
+                    {displayedJobs.map((job) => (
                       <div
                         key={job._id}
                         className="group relative overflow-hidden rounded-2xl border border-purple-500/40 bg-white/5 shadow-[0_0_30px_rgba(88,28,135,0.35)] transition-all duration-300 hover:-translate-y-2 hover:border-fuchsia-400/70"
@@ -399,7 +482,20 @@ const Apply = () => {
                                 </div>
                 
                                 {/* Card Footer */}
-                                <div className="px-6 py-4 border-t border-purple-500/20 flex gap-3">
+                                <div className="px-6 py-4 border-t border-purple-500/20 flex gap-3 items-center">
+                                  <button
+                                    onClick={() => handleToggleSave(job._id)}
+                                    className="p-2 rounded-lg border border-purple-500/30 bg-white/5 hover:bg-white/10 transition-all"
+                                    title="Save Job"
+                                  >
+                                    <Heart
+                                      className={`w-5 h-5 transition-all ${
+                                        savedJobs.has(job._id)
+                                          ? "fill-fuchsia-500 text-fuchsia-500"
+                                          : "text-slate-300"
+                                      }`}
+                                    />
+                                  </button>
                                   <button
                                     onClick={() => handleApply(job._id)}
                                     disabled={appliedJobs.has(job._id)}

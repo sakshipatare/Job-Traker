@@ -25,6 +25,12 @@ const studentSchema = new mongoose.Schema(
     profilePhoto: {
       type: String   // ✅ add this
     },
+    savedJobs: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Job"
+    }
+  ]
   },
   { timestamps: true }
 );
