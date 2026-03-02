@@ -12,13 +12,17 @@ import {
   Loader,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import Chat from "../Chat";
 
 const Status = () => {
+  const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
   const [applications, setApplications] = useState([]);
   const [selectedJob, setSelectedJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
+  const [openChatId, setOpenChatId] = useState(null);
 
   const token = localStorage.getItem("token");
 
@@ -78,8 +82,29 @@ const Status = () => {
     applications.some((app) => app.job === job._id || app.job?._id === job._id)
   );
 
+  if (openChatId) {
   return (
-    <div className="px-6 pt-6 pb-20">
+    <div className="px-6 pt-65 pb-20">
+      <button
+        onClick={() => setOpenChatId(null)}
+        className="mb-6 px-4 py-2 rounded-xl 
+                   bg-slate-800 hover:bg-slate-700 
+                   text-white text-sm"
+      >
+        ← Back to Status
+      </button>
+
+      <Chat
+        applicationId={openChatId}
+        currentUserRole="student"
+        onClose={() => setOpenChatId(null)}
+      />
+    </div>
+  );
+}
+
+return (
+  <div className="px-6 pt-6 pb-20">
 
       {/* Header */}
       <div className="mb-12">
@@ -163,6 +188,18 @@ const Status = () => {
                   >
                     View Details
                   </button>
+
+                  {["shortlisted", "selected"].includes(application?.status) && (
+                    <button
+                      onClick={() => setOpenChatId(application._id)}
+                      className="w-full mt-3 py-2 rounded-xl 
+                                border border-cyan-400/40 
+                                text-cyan-300 hover:bg-cyan-400/10 
+                                transition text-sm font-medium"
+                    >
+                      💬 Open Chat
+                    </button>
+                  )}
                 </div>
               </motion.div>
             );

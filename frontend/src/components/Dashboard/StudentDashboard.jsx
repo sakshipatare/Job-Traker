@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Briefcase, LogOut, Bell } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
+import { Outlet } from "react-router-dom";
 
 import Details from "./student/Details";
 import Apply from "./student/Apply";
@@ -215,6 +216,7 @@ const StudentDashboard = () => {
       </BeamsBackground>
 
       <Footer />
+      <Outlet /> {/* This will render the Chat component when the route matches /dashboard/chat/:applicationId */}  
     </div>
   );
 };

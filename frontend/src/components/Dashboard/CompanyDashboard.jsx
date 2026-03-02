@@ -7,6 +7,7 @@ import PostApply from "./company/PostApply";
 import CompanyJobs from "./company/CompanyJobs";
 import Footer from "../Home/Footer";
 import { BeamsBackground } from "../ui/BeamsBackground";
+import { Outlet } from "react-router-dom";
 
 const navItems = [
   { key: "details", label: "Details" },

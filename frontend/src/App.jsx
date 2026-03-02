@@ -9,6 +9,7 @@ import Jobs from './components/Home/Job';
 import StudentDashboard from './components/Dashboard/StudentDashboard';
 import CompanyDashboard from './components/Dashboard/CompanyDashboard';
 import StudentApplicants from './components/Dashboard/company/StudentApply';
+// import Chat from './components/Dashboard/Chat';
 
 
 function App() {

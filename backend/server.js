@@ -6,6 +6,7 @@ import companyRoute from "./src/features/companies/company.routes.js";
 import jobRoutes from "./src/features/jobs/job.routes.js";
 import applicationRoute from "./src/features/applications/application.routes.js";
 import notificationRouter from "./src/features/notifications/notification.routes.js";
+import chatRoute from "./src/features/chat/chat.route.js";
 import dotenv from "dotenv";
 import cors from "cors";
 import swaggerUi from "swagger-ui-express";
@@ -106,6 +107,7 @@ app.use("/companies", companyRoute);
 app.use("/jobs", jobRoutes);
 app.use("/applications", applicationRoute);
 app.use("/notifications", notificationRouter);
+app.use("/chat", chatRoute);
 
 app.get("/", (req, res) => {
   res.send("Server is running ");

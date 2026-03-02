@@ -7,6 +7,7 @@ import {
   FileText,
 } from "lucide-react";
 import Footer from "../../Home/Footer";
+import Chat from "../Chat";
 
 const StudentApplicants = () => {
   const { jobId } = useParams();
@@ -17,6 +18,7 @@ const StudentApplicants = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const token = localStorage.getItem("token");
+  const [openChatId, setOpenChatId] = useState(null);
 
   useEffect(() => {
     if (jobId) fetchApplicants();
@@ -92,7 +94,28 @@ const StudentApplicants = () => {
     }
   };
 
+  if (openChatId) {
   return (
+    <div className="px-6 pt-65 pb-20">
+      <button
+        onClick={() => setOpenChatId(null)}
+        className="mb-6 px-4 py-2 rounded-xl 
+                   bg-slate-800 hover:bg-slate-700 
+                   text-white text-sm"
+      >
+        ← Back to Status
+      </button>
+
+      <Chat
+        applicationId={openChatId}
+        currentUserRole="company"
+        onClose={() => setOpenChatId(null)}
+      />
+    </div>
+  );
+}
+
+return (
     <div className="min-h-screen bg-gradient-to-b from-[#050014] via-[#08001f] to-[#050014] text-slate-100 flex flex-col">
 
       {/* Navbar */}
@@ -116,7 +139,7 @@ const StudentApplicants = () => {
       </nav>
 
       {/* Content */}
-      <div className="flex-1 p-6 max-w-6xl mx-auto w-full">
+      <div className="flex-1 pt-24 px-6 pb-6 max-w-6xl mx-auto w-full">
         <div className="rounded-3xl border border-purple-500/40 bg-[#070017]/70 backdrop-blur-xl shadow-[0_0_45px_rgba(129,140,248,0.35)] p-8">
 
           {/* Header */}
@@ -252,6 +275,18 @@ const StudentApplicants = () => {
                       >
                         Pending
                       </button>
+
+                      {["shortlisted", "selected"].includes(app.status) && (
+                      <button
+                        onClick={() => setOpenChatId(app._id)}
+                        className="w-full mt-3 py-2 rounded-xl 
+                                  border border-cyan-400/40 
+                                  text-cyan-300 hover:bg-cyan-400/10 
+                                  transition text-sm font-medium"
+                      >
+                        💬 Open Chat
+                      </button>
+                    )}
                     </div>
                   </div>
                 </div>
