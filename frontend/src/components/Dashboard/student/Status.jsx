@@ -90,10 +90,10 @@ const Status = () => {
       </div>
 
       {/* Stats */}
-      {stats && stats.totalApplications > 0 && (
+      {stats && (
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {[
-            { label: "Total", value: stats.totalApplications },
+            { label: "Total", value: stats.totalApplications || 0 },
             { label: "Selected", value: stats.selectedApplications || 0 },
             { label: "Pending", value: stats.pendingApplications || 0 },
             { label: "Rejected", value: stats.rejectedApplications || 0 },

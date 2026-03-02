@@ -22,7 +22,8 @@ const PostJob = () => {
     location: "",
     salary: "",
     skills: "",
-    description: ""
+    description: "",
+    deadline: ""
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -57,6 +58,7 @@ const PostJob = () => {
           location: formData.location,
           description: formData.description,
           salary: formData.salary ? Number(formData.salary) : undefined,
+          deadline: formData.deadline,
           skills: formData.skills
             .split(",")
             .map(skill => skill.trim())
@@ -72,7 +74,8 @@ const PostJob = () => {
           location: "",
           salary: "",
           skills: "",
-          description: ""
+          description: "",
+          deadline: ""
         });
         setTimeout(() => setSuccessMessage(""), 4000);
       } else {
@@ -185,6 +188,21 @@ const PostJob = () => {
           />
         </div>
 
+        <div>
+        <label className="text-sm text-slate-300 mb-2 flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 text-fuchsia-300" />
+          Application Deadline
+        </label>
+        <input
+          type="date"
+          name="deadline"
+          value={formData.deadline}
+          onChange={handleChange}
+          required
+          className="w-full px-4 py-3 rounded-xl bg-white/5 border border-purple-500/30 focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-500/40 outline-none text-slate-200 transition-all"
+        />
+      </div>
+
         {/* Description */}
         <div>
           <label className="text-sm text-slate-300 mb-2 flex items-center gap-2">
@@ -224,7 +242,7 @@ const PostJob = () => {
           <button
             type="reset"
             onClick={() =>
-              setFormData({ title: "", location: "", salary: "", skills: "", description: "" })
+              setFormData({ title: "", location: "", salary: "", skills: "", description: "", deadline: "" })
             }
             className="flex-1 px-6 py-3.5 rounded-xl border border-purple-400/40 bg-white/5 text-slate-200 hover:bg-white/10 transition-all"
           >

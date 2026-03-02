@@ -10,6 +10,15 @@ const jobSchema = new mongoose.Schema({
         required: true
     }],
     company: { type: mongoose.Schema.Types.ObjectId, ref: "Company", required: true },
+    deadline: {
+        type: Date,
+        required: true
+    },
+
+    isClosed: {
+        type: Boolean,
+        default: false
+    }
     // createdAt: { type: Date, default: Date.now },
     // updatedAt: { type: Date, default: Date.now }
 },{ timestamps: true });
@@ -29,6 +38,11 @@ jobSchema.index({ salary: 1 });
 // jobSchema.pre("save", function () {
 //   this.createdAt = new Date();
 // });
+jobSchema.pre("save", async function () {
+  if (!this.deadline) {
+    throw new Error("Deadline is required");
+  }
+});
 
 
 export const Job = mongoose.model("Job", jobSchema);

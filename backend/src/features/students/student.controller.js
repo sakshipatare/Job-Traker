@@ -1,4 +1,5 @@
 import studentRepo from "./student.repository.js";
+import { Student } from "./student.schema.js";
 import { Application } from "../applications/application.schema.js";
 
 export default class studentController {
@@ -9,29 +10,41 @@ export default class studentController {
 
 async getStudentStats(req, res) {
   try {
-    const userId = req.user._id;
+    // 1️⃣ Find student profile using logged-in user
+    const studentProfile = await Student.findOne({
+      user: req.user._id
+    });
 
+    if (!studentProfile) {
+      return res.status(404).json({
+        message: "Student profile not found"
+      });
+    }
+
+    const studentId = studentProfile._id;
+
+    // 2️⃣ Count using student profile ID
     const totalApplications = await Application.countDocuments({
-      student: userId
+      student: studentId
     });
 
     const selectedApplications = await Application.countDocuments({
-      student: userId,
+      student: studentId,
       status: "selected"
     });
 
     const rejectedApplications = await Application.countDocuments({
-      student: userId,
+      student: studentId,
       status: "rejected"
     });
 
     const pendingApplications = await Application.countDocuments({
-      student: userId,
+      student: studentId,
       status: "pending"
     });
 
     const shortlistedApplications = await Application.countDocuments({
-      student: userId,
+      student: studentId,
       status: "shortlisted"
     });
 
@@ -45,7 +58,9 @@ async getStudentStats(req, res) {
 
   } catch (error) {
     console.error("Student Stats Error:", error);
-    return res.status(500).json({ message: "Error fetching dashboard stats" });
+    return res.status(500).json({
+      message: "Error fetching dashboard stats"
+    });
   }
 }
 

@@ -32,6 +32,13 @@ async applyJob(req, res) {
       return res.status(404).json({ message: "Job not found" });
     }
 
+    //  Prevent applying after deadline
+if (job.isClosed || job.deadline < new Date()) {
+  return res.status(400).json({
+    message: "This job is closed. Deadline has passed."
+  });
+}
+
     //  Compare Skills
     const jobSkills = job.skills.map(skill =>
       skill.toLowerCase().trim()

@@ -37,8 +37,20 @@ export default class jobRepo {
         const skip = (page - 1) * limit;
         const sortOrder = order === "asc" ? 1 : -1;
 
+        // Auto close expired jobs
+        await Job.updateMany(
+        {
+            deadline: { $lt: new Date() },
+            isClosed: false
+        },
+        { $set: { isClosed: true } }
+        );
+
+        // Only show open jobs to students
+        filters.isClosed = false;
+
         const jobs = await Job.find(filters)
-            .select("title location salary description skills company createdAt")
+            .select("title location salary description skills company createdAt deadline isClosed")
             .populate("company", "name location description website")
             .sort({ [sortBy]: sortOrder })
             .skip(skip)

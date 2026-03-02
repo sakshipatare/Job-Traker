@@ -423,10 +423,16 @@ const handleToggleSave = async (jobId) => {
                 <div className="pointer-events-none absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-cyan-400/20 blur-3xl" />
                 <div className="relative z-10">
                 {/* Card Header */}
-                <div className="bg-gradient-to-r from-fuchsia-500 via-purple-500 to-cyan-400 px-6 py-4">
+                <div className="bg-gradient-to-r from-fuchsia-500 via-purple-500 to-cyan-400 px-6 py-4 flex justify-between items-center">
                   <h3 className="font-bold text-lg md:text-xl text-white line-clamp-2">
                     {job.title}
                   </h3>
+
+                  {job.isClosed && (
+                    <span className="ml-2 px-2 py-1 text-xs bg-red-500/20 text-red-200 border border-red-400/40 rounded-full">
+                      Closed
+                    </span>
+                  )}
                 </div>
 
                 <div className="p-6 space-y-4">
@@ -474,12 +480,40 @@ const handleToggleSave = async (jobId) => {
                                     </div>
                                   )}
                 
-                                  {/* Posted Date */}
-                                  <div className="flex items-center space-x-2 text-sm text-slate-400">
-                                    <Calendar className="w-4 h-4 text-slate-400" />
-                                    <span>{new Date(job.createdAt).toLocaleDateString()}</span>
+                                  {/* Posted & Deadline Section */}
+                                  <div className="space-y-2 pt-2 border-t border-purple-500/20">
+
+                                    {/* Posted Date */}
+                                    <div className="flex items-center justify-between text-sm">
+                                      <div className="flex items-center space-x-2 text-slate-400">
+                                        <Calendar className="w-4 h-4 text-amber-300" />
+                                        <span>
+                                          Posted: {new Date(job.createdAt).toLocaleDateString()}
+                                        </span>
+                                      </div>
+                                    </div>
+
+                                    {/* Deadline */}
+                                    {job.deadline && (
+                                      <div className="flex items-center justify-between text-sm">
+                                        <div className="flex items-center space-x-2 text-rose-300">
+                                          <Calendar className="w-4 h-4 text-rose-400" />
+                                          <span>
+                                            Apply Before: {new Date(job.deadline).toLocaleDateString()}
+                                          </span>
+                                        </div>
+
+                                        {/* Expired Badge */}
+                                        {new Date(job.deadline) < new Date() && (
+                                          <span className="px-2 py-0.5 text-xs font-semibold bg-red-500/20 text-red-300 border border-red-400/40 rounded-full">
+                                            Expired
+                                          </span>
+                                        )}
+                                      </div>
+                                    )}
+
                                   </div>
-                                </div>
+                                  </div>
                 
                                 {/* Card Footer */}
                                 <div className="px-6 py-4 border-t border-purple-500/20 flex gap-3 items-center">
@@ -498,9 +532,9 @@ const handleToggleSave = async (jobId) => {
                                   </button>
                                   <button
                                     onClick={() => handleApply(job._id)}
-                                    disabled={appliedJobs.has(job._id)}
+                                    disabled={appliedJobs.has(job._id) || job.isClosed}
                                     className={`flex-1 font-semibold py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2 ${
-                                      appliedJobs.has(job._id)
+                                      appliedJobs.has(job._id) || job.isClosed
                                         ? "bg-emerald-500/15 text-emerald-100 border border-emerald-400/30 cursor-not-allowed"
                                         : "bg-gradient-to-r from-fuchsia-500 via-purple-500 to-cyan-400 text-white hover:shadow-[0_0_25px_rgba(236,72,153,0.45)] hover:scale-[1.02]"
                                     }`}
@@ -633,7 +667,7 @@ const handleToggleSave = async (jobId) => {
                               </div>
                             </div>
 
-              {/* Job Details Section */}
+                              {/* Job Details Section */}
                               <div className="border-b border-purple-500/20 pb-6">
                                 <h3 className="text-lg font-semibold text-slate-50 mb-4 flex items-center space-x-2">
                                   <Briefcase className="w-5 h-5 text-cyan-300" />
@@ -676,6 +710,24 @@ const handleToggleSave = async (jobId) => {
                                       </span>
                                     </div>
                                   </div>
+                                  {/* Deadline */}
+                                  {selectedJob.deadline && (
+                                  <div>
+                                    <p className="text-xs font-semibold text-slate-300 uppercase tracking-wide mb-1">
+                                      Application Deadline
+                                    </p>
+                                    <div className="flex items-center space-x-2 text-base md:text-lg text-red-400">
+                                      <Calendar className="w-5 h-5 text-red-400" />
+                                      <span>
+                                        {new Date(selectedJob.deadline).toLocaleDateString("en-US", {
+                                          year: "numeric",
+                                          month: "long",
+                                          day: "numeric"
+                                        })}
+                                      </span>
+                                    </div>
+                                  </div>
+                                )}
                                 </div>
                               </div>
               
@@ -710,11 +762,11 @@ const handleToggleSave = async (jobId) => {
                               )}
                             </div>
 
-            {/* Modal Footer */}
+                          {/* Modal Footer */}
                           <div className="sticky bottom-0 bg-[#070017]/80 border-t border-purple-500/20 px-6 md:px-8 py-4 flex gap-3 backdrop-blur">
                             <button
                               onClick={() => handleApply(selectedJob._id)}
-                              disabled={appliedJobs.has(selectedJob._id)}
+                              disabled={appliedJobs.has(selectedJob._id) || selectedJob.isClosed}
                               className={`flex-1 font-semibold py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 ${
                                 appliedJobs.has(selectedJob._id)
                                   ? "bg-emerald-500/15 text-emerald-100 border border-emerald-400/30 cursor-not-allowed"
