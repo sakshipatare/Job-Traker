@@ -4,8 +4,9 @@ import { Job } from "../jobs/job.schema.js";
 import { Company } from "../companies/company.schema.js";
 import { Application } from "./application.schema.js";
 import { Notification } from "../notifications/notification.schema.js";
-import { userModel } from "../users/user.repository.js";
+// import { userModel } from "../users/user.repository.js";
 import { sendEmail } from "../../utils/sendEmail.js";
+import { generateOfferLetter } from "../offerLetter/offerLetter.service.js";
 
 export default class applicationController {
 
@@ -52,7 +53,9 @@ if (job.isClosed || job.deadline < new Date()) {
       studentSkills.includes(skill)
     );
 
-    const matchPercentage = (matchedSkills.length / jobSkills.length) * 100;
+    const matchPercentage = jobSkills.length === 0
+    ? 0
+    : (matchedSkills.length / jobSkills.length) * 100;
 
     //  Decide Status
     let status = "pending";
@@ -75,7 +78,12 @@ if (job.isClosed || job.deadline < new Date()) {
     //   await application.save();
     // }
 
-    if (application?.alreadyApplied) {
+    const existingApplication = await Application.findOne({
+      job: jobId,
+      student: studentProfile._id
+    });
+
+    if (existingApplication) {
       return res.status(400).json({
         message: "You have already applied for this job."
       });
@@ -157,7 +165,6 @@ async updateStatus(req, res) {
     const { applicationId } = req.params;
     const { status } = req.body;
 
-    // 🔥 Find full application with student + job + company
     const application = await Application.findById(applicationId)
       .populate({
         path: "student",
@@ -172,14 +179,31 @@ async updateStatus(req, res) {
       return res.status(404).json({ message: "Application not found" });
     }
 
-    // ✅ Update status
+    const company = await Company.findOne({ user: req.user._id });
+
+    if (!company) {
+      return res.status(403).json({ message: "Company not found" });
+    }
+
+    if (application.job.company._id.toString() !== company._id.toString()) {
+      return res.status(403).json({ message: "Unauthorized action" });
+    }
+
     application.status = status;
     await application.save();
 
     const studentUserId = application.student.user._id;
     const studentEmail = application.student.user.email;
+    const studentName = application.student.user.name;
     const companyName = application.job.company.name;
     const jobTitle = application.job.title;
+
+    let attachmentPath = null;
+
+    // ✅ IF SELECTED → GENERATE PDF
+    if (status === "selected") {
+      attachmentPath = await generateOfferLetter(application);
+    }
 
     // ===============================
     // ✅ CREATE NOTIFICATION
@@ -191,38 +215,32 @@ async updateStatus(req, res) {
     });
 
     // ===============================
-    // ✅ SEND EMAIL
+    // ✅ SEND EMAIL (WITH PDF IF SELECTED)
     // ===============================
     await sendEmail(
       studentEmail,
-      "Application Status Updated",
+      `Application Status - ${jobTitle}`,
       `
-      <div style="font-family: Arial, sans-serif; line-height: 1.6;">
-        <h2 style="color:#333;">Application Status Updated</h2>
+      <div style="font-family: Arial;">
+        <h2>Application Status Update</h2>
+        <p>Dear ${studentName},</p>
+        <p>Your application for <b>${jobTitle}</b> at 
+        <b>${companyName}</b> is now:</p>
 
-        <p>Hello,</p>
+        <h3 style="color:green;">${status.toUpperCase()}</h3>
 
-        <p>
-          Your application for <b>${jobTitle}</b> at 
-          <b>${companyName}</b> has been updated to:
-        </p>
+        ${status === "selected"
+          ? "<p>Please find your offer letter attached.</p>"
+          : ""}
 
-        <p style="font-size:18px; color:#007bff;">
-          <b>${status.toUpperCase()}</b>
-        </p>
-
-        <p>Please login to your dashboard to check full details.</p>
-
-        <hr/>
-        <p style="font-size:12px; color:gray;">
-          JobTracker Team
-        </p>
+        <p>Regards,<br/>JobTracker Team</p>
       </div>
-      `
+      `,
+      attachmentPath // <-- attachment if exists
     );
 
     return res.status(200).json({
-      message: "Status updated, notification & email sent",
+      message: "Status updated successfully",
       application
     });
 

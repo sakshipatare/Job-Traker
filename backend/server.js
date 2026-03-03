@@ -96,10 +96,10 @@ app.use(
 // Connect DB
 connectUsingMongoose();
 
-app.use((req, res, next) => {
-  console.log("Incoming Request:", req.method, req.url);
-  next();
-});
+// app.use((req, res, next) => {
+//   console.log("Incoming Request:", req.method, req.url);
+//   next();
+// });
 // Routes
 app.use("/users", userRoutes);
 app.use("/students", studentRoutes);

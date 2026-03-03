@@ -61,17 +61,35 @@ export const sendResetPasswordEmail = async (email, token) => {
   }
 };
 
-export const sendEmail = async (to, subject, htmlContent) => {
+export const sendEmail = async (
+  to,
+  subject,
+  htmlContent,
+  attachmentPath = null
+) => {
   try {
-    const info = await transporter.sendMail({
+    const mailOptions = {
       from: process.env.EMAIL_USER,
       to: to,
       subject: subject,
       html: htmlContent,
-    });
+    };
+
+    // ✅ Add attachment only if provided
+    if (attachmentPath) {
+      mailOptions.attachments = [
+        {
+          filename: "OfferLetter.pdf",
+          path: attachmentPath,
+        },
+      ];
+    }
+
+    const info = await transporter.sendMail(mailOptions);
 
     console.log("Email sent:", info.messageId);
     return true;
+
   } catch (err) {
     console.error("sendEmail error:", err);
     throw err;
