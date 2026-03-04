@@ -17,6 +17,24 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
+const SKILL_SUGGESTIONS = [
+  "JavaScript",
+  "React",
+  "Node.js",
+  "Express",
+  "MongoDB",
+  "C++",
+  "Java",
+  "Python",
+  "HTML",
+  "CSS",
+  "Tailwind",
+  "MySQL",
+  "Git",
+  "AWS",
+  "Firebase",
+];
+
 const InputField = ({
   icon: Icon,
   label,
@@ -47,7 +65,7 @@ const Details = () => {
     email: "",
     phone: "",
     education: "",
-    skills: "",
+    skills: [],
     resume: null,
     profilePhoto: null,
   });
@@ -60,6 +78,23 @@ const Details = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [skillInput, setSkillInput] = useState("");
+const [filteredSuggestions, setFilteredSuggestions] = useState([]);
+
+useEffect(() => {
+  if (!skillInput.trim()) {
+    setFilteredSuggestions([]);
+    return;
+  }
+
+  const filtered = SKILL_SUGGESTIONS.filter(
+    (skill) =>
+      skill.toLowerCase().includes(skillInput.toLowerCase()) &&
+      !formData.skills.includes(skill)
+  );
+
+  setFilteredSuggestions(filtered);
+}, [skillInput, formData.skills]);
 
   useEffect(() => {
     fetchProfile();
@@ -79,7 +114,7 @@ const Details = () => {
           email: data.user?.email || "",
           phone: data.phone || "",
           education: data.education || "",
-          skills: data.skills?.join(", ") || "",
+          skills: data.skills || [],
           resume: null,
           profilePhoto: null,
         };
@@ -143,15 +178,7 @@ const Details = () => {
       const form = new FormData();
       form.append("phone", formData.phone);
       form.append("education", formData.education);
-      form.append(
-        "skills",
-        JSON.stringify(
-          formData.skills
-            .split(",")
-            .map((s) => s.trim())
-            .filter((s) => s !== "")
-        )
-      );
+      form.append("skills", JSON.stringify(formData.skills));
 
       if (formData.resume) form.append("resume", formData.resume);
       if (formData.profilePhoto)
@@ -177,6 +204,24 @@ const Details = () => {
       setIsSubmitting(false);
     }
   };
+
+  const addSkill = (skill) => {
+  if (!formData.skills.includes(skill)) {
+    setFormData((prev) => ({
+      ...prev,
+      skills: [...prev.skills, skill],
+    }));
+  }
+  setSkillInput("");
+  setFilteredSuggestions([]);
+};
+
+const removeSkill = (skillToRemove) => {
+  setFormData((prev) => ({
+    ...prev,
+    skills: prev.skills.filter((skill) => skill !== skillToRemove),
+  }));
+};
 
   return (
     <div className="px-6 pt-4 pb-20">
@@ -273,7 +318,70 @@ const Details = () => {
             <InputField icon={BookOpen} label="Education" name="education" value={formData.education} onChange={handleChange} disabled={!isEditing} />
           </div>
 
-          <InputField icon={Zap} label="Skills" name="skills" value={formData.skills} onChange={handleChange} disabled={!isEditing} />
+          <div>
+            <label className="text-sm text-slate-300 mb-2 flex items-center gap-2">
+              <Zap className="w-4 h-4 text-fuchsia-300" />
+              Skills
+            </label>
+
+            {/* Selected Skills */}
+            <div className="flex flex-wrap gap-2 mb-3">
+              {formData.skills.map((skill, index) => (
+                <span
+                  key={index}
+                  className="px-3 py-1 bg-cyan-500/10 border border-cyan-400/40 
+                  text-cyan-300 rounded-xl text-sm flex items-center gap-2"
+                >
+                  {skill}
+                  {isEditing && (
+                    <button
+                      type="button"
+                      onClick={() => removeSkill(skill)}
+                      className="text-red-400 hover:text-red-500"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </span>
+              ))}
+            </div>
+
+            {/* Input Field */}
+            {isEditing && (
+              <>
+                <input
+                  type="text"
+                  value={skillInput}
+                  onChange={(e) => setSkillInput(e.target.value)}
+                  placeholder="Type a skill..."
+                  className="w-full px-4 py-3 rounded-xl bg-white/5 border border-purple-500/30 
+                  focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-500/40 
+                  outline-none text-slate-200 placeholder-slate-400 transition-all"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && skillInput.trim()) {
+                      e.preventDefault();
+                      addSkill(skillInput.trim());
+                    }
+                  }}
+                />
+
+                {/* Suggestions */}
+                {filteredSuggestions.length > 0 && (
+                  <div className="mt-2 bg-[#120224] border border-purple-500/40 rounded-xl shadow-lg max-h-40 overflow-y-auto">
+                    {filteredSuggestions.map((suggestion, index) => (
+                      <div
+                        key={index}
+                        onClick={() => addSkill(suggestion)}
+                        className="px-4 py-2 hover:bg-cyan-400/10 cursor-pointer text-slate-300"
+                      >
+                        {suggestion}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
 
           {/* Resume */}
           <div>
