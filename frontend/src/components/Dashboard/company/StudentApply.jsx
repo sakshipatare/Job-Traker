@@ -17,9 +17,10 @@ const StudentApplicants = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
-  const token = localStorage.getItem("token");
   const [openChatId, setOpenChatId] = useState(null);
+  const [selectedStudent, setSelectedStudent] = useState(null);
 
+  const token = localStorage.getItem("token");
   useEffect(() => {
     if (jobId) fetchApplicants();
   }, [jobId]);
@@ -211,7 +212,10 @@ return (
                 >
                   <div className="flex items-center justify-between bg-gradient-to-r from-[#120224] via-[#1b0536] to-[#0b0118] border-b border-purple-500/30 px-6 py-5">
                     <div>
-                      <h3 className="text-lg font-semibold text-slate-100 group-hover:text-fuchsia-400 transition">
+                      <h3
+                        onClick={() => setSelectedStudent(app.student)}
+                        className="text-lg font-semibold text-slate-100 group-hover:text-fuchsia-400 transition cursor-pointer hover:underline"
+                      >
                         {app.student?.user?.name}
                       </h3>
                       <p className="text-slate-400 text-sm">
@@ -295,6 +299,87 @@ return (
           )}
         </div>
       </div>
+      {/* Student Detail Modal */}
+      {selectedStudent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="relative w-full max-w-2xl bg-[#0c0120] border border-purple-500/40 rounded-2xl p-8 shadow-[0_0_40px_rgba(129,140,248,0.4)]">
+
+            {/* Close Button */}
+            <button
+              onClick={() => setSelectedStudent(null)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-red-400 text-xl"
+            >
+              ✕
+            </button>
+
+            {/* Profile Section */}
+            <div className="flex items-center gap-6 mb-6">
+              <img
+                src={
+                  selectedStudent?.profilePhoto
+                    ? `http://localhost:5000/${selectedStudent.profilePhoto.replace(/\\/g, "/")}`
+                    : "https://via.placeholder.com/120"
+                }
+                alt="Profile"
+                className="w-24 h-24 rounded-full object-cover border border-purple-500/40"
+              />
+
+              <div>
+                <h2 className="text-2xl font-bold text-fuchsia-400">
+                  {selectedStudent?.user?.name}
+                </h2>
+                <p className="text-slate-400">
+                  {selectedStudent?.user?.email}
+                </p>
+              </div>
+            </div>
+
+            {/* Skills */}
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-cyan-400 mb-2">
+                Skills
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {selectedStudent?.skills?.length > 0 ? (
+                  selectedStudent.skills.map((skill, index) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1 text-sm rounded-xl bg-cyan-500/10 border border-cyan-400/40 text-cyan-300"
+                    >
+                      {skill}
+                    </span>
+                  ))
+                ) : (
+                  <p className="text-slate-400 text-sm">No skills added</p>
+                )}
+              </div>
+            </div>
+
+            {/* Education */}
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-purple-400 mb-2">
+                Education
+              </h3>
+              <p className="text-slate-300">
+                {selectedStudent?.education || "Not provided"}
+              </p>
+            </div>
+
+            {/* Resume */}
+            <div>
+              <a
+                href={`http://localhost:5000/${selectedStudent?.resume?.replace(/\\/g, "/")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-emerald-400/40 text-emerald-300 hover:bg-emerald-400/10 transition"
+              >
+                <FileText size={16} />
+                View Resume
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>
