@@ -19,28 +19,40 @@ async applyJob(req, res) {
   try {
     const { jobId } = req.params;
 
-    // 1️ Find student profile
+    // 1️⃣ Find student profile
     const studentProfile = await Student.findOne({ user: req.user._id });
 
     if (!studentProfile || !studentProfile.resume) {
       return res.status(400).json({ message: "Upload resume first" });
     }
 
-    //  Fetch Job
+    // 2️⃣ Check if already applied
+    const existingApplication = await Application.findOne({
+      job: jobId,
+      student: studentProfile._id
+    });
+
+    if (existingApplication) {
+      return res.status(400).json({
+        message: "You have already applied for this job."
+      });
+    }
+
+    // 3️⃣ Fetch job
     const job = await Job.findById(jobId);
 
     if (!job) {
       return res.status(404).json({ message: "Job not found" });
     }
 
-    //  Prevent applying after deadline
-if (job.isClosed || job.deadline < new Date()) {
-  return res.status(400).json({
-    message: "This job is closed. Deadline has passed."
-  });
-}
+    // 4️⃣ Deadline check
+    if (job.isClosed || job.deadline < new Date()) {
+      return res.status(400).json({
+        message: "This job is closed. Deadline has passed."
+      });
+    }
 
-    //  Compare Skills
+    // 5️⃣ Skill matching
     const jobSkills = job.skills.map(skill =>
       skill.toLowerCase().trim()
     );
@@ -53,47 +65,30 @@ if (job.isClosed || job.deadline < new Date()) {
       studentSkills.includes(skill)
     );
 
-    const matchPercentage = jobSkills.length === 0
-    ? 0
-    : (matchedSkills.length / jobSkills.length) * 100;
+    const matchPercentage =
+      jobSkills.length === 0
+        ? 0
+        : (matchedSkills.length / jobSkills.length) * 100;
 
-    //  Decide Status
     let status = "pending";
     if (matchPercentage >= 70) {
       status = "shortlisted";
     }
 
-    //  Create Application
+    // 6️⃣ Create application
     const application = await this.appRepo.createApplication({
       job: jobId,
       student: studentProfile._id,
       resume: studentProfile.resume,
-      status: status,
-      matchPercentage: matchPercentage
+      status,
+      matchPercentage
     });
-
-    //  Update status if shortlisted
-    // if (application.status === "pending") {
-    //   application.status = status;
-    //   await application.save();
-    // }
-
-    const existingApplication = await Application.findOne({
-      job: jobId,
-      student: studentProfile._id
-    });
-
-    if (existingApplication) {
-      return res.status(400).json({
-        message: "You have already applied for this job."
-      });
-    }
 
     return res.status(201).json({
       message: "Applied successfully",
       matchPercentage,
       status,
-      application: application,
+      application
     });
 
   } catch (err) {
