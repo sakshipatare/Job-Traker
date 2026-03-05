@@ -19,6 +19,9 @@ const StudentApplicants = () => {
   const [filterStatus, setFilterStatus] = useState("all");
   const [openChatId, setOpenChatId] = useState(null);
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [scheduleModal, setScheduleModal] = useState(false);
+  const [selectedApplication, setSelectedApplication] = useState(null);
+  const [interviewDate, setInterviewDate] = useState("");
 
   const token = localStorage.getItem("token");
   useEffect(() => {
@@ -63,6 +66,35 @@ const StudentApplicants = () => {
       setErrorMessage("Error updating status");
     }
   };
+
+  const scheduleInterview = async () => {
+  try {
+    const res = await fetch(
+      `http://localhost:5000/interviews/schedule/${selectedApplication}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          scheduledAt: interviewDate,
+        }),
+      }
+    );
+
+    if (res.ok) {
+      setSuccessMessage("Interview scheduled successfully");
+      setScheduleModal(false);
+      setInterviewDate("");
+      setSelectedApplication(null);
+    } else {
+      setErrorMessage("Failed to schedule interview");
+    }
+  } catch {
+    setErrorMessage("Error scheduling interview");
+  }
+};
 
   const filtered =
     filterStatus === "all"
@@ -281,16 +313,25 @@ return (
                       </button>
 
                       {["shortlisted", "selected"].includes(app.status) && (
-                      <button
-                        onClick={() => setOpenChatId(app._id)}
-                        className="w-full mt-3 py-2 rounded-xl 
-                                  border border-cyan-400/40 
-                                  text-cyan-300 hover:bg-cyan-400/10 
-                                  transition text-sm font-medium"
-                      >
-                        💬 Open Chat
-                      </button>
-                    )}
+                        <>
+                          <button
+                            onClick={() => setOpenChatId(app._id)}
+                            className="px-4 py-2 rounded-xl border border-cyan-400/40 text-cyan-300 hover:bg-cyan-400/10 transition font-semibold"
+                          >
+                            💬 Open Chat
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              setSelectedApplication(app._id);
+                              setScheduleModal(true);
+                            }}
+                            className="px-4 py-2 rounded-xl border border-purple-400/40 text-purple-300 hover:bg-purple-400/10 transition font-semibold"
+                          >
+                            📅 Schedule Interview
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -376,6 +417,40 @@ return (
                 <FileText size={16} />
                 View Resume
               </a>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {scheduleModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="w-full max-w-md bg-[#0c0120] border border-purple-500/40 rounded-2xl p-8 shadow-[0_0_40px_rgba(129,140,248,0.4)]">
+
+            <h2 className="text-xl font-bold text-fuchsia-400 mb-4">
+              Schedule Interview
+            </h2>
+
+            <input
+              type="datetime-local"
+              value={interviewDate}
+              onChange={(e) => setInterviewDate(e.target.value)}
+              className="w-full mb-6 px-4 py-2 rounded-xl bg-black/40 border border-purple-400/30 text-white"
+            />
+
+            <div className="flex gap-3">
+              <button
+                onClick={scheduleInterview}
+                className="flex-1 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-cyan-400 text-white font-semibold"
+              >
+                Schedule
+              </button>
+
+              <button
+                onClick={() => setScheduleModal(false)}
+                className="flex-1 py-2 rounded-xl border border-slate-400/40 text-slate-300"
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </div>

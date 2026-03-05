@@ -23,11 +23,14 @@ const Status = () => {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
   const [openChatId, setOpenChatId] = useState(null);
+  const [interviewInvites, setInterviewInvites] = useState([]);
+  const [inviteModal, setInviteModal] = useState(false);
 
   const token = localStorage.getItem("token");
 
   useEffect(() => {
     fetchData();
+    checkInterviewInvite();
   }, []);
 
   const fetchData = async () => {
@@ -59,6 +62,46 @@ const Status = () => {
       setLoading(false);
     }
   };
+
+  const checkInterviewInvite = async () => {
+  try {
+    const res = await fetch("http://localhost:5000/interviews/my-invites", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      setInterviewInvites(data);
+    }
+
+  } catch (error) {
+    console.error("Error fetching invite", error);
+  }
+};
+
+const respondInterview = async (status, id) => {
+  try {
+    const res = await fetch(
+      `http://localhost:5000/interviews/respond/${id}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status }),
+      }
+    );
+
+    if (res.ok) {
+      checkInterviewInvite(); // refresh invites
+    }
+
+  } catch (error) {
+    console.error("Response error", error);
+  }
+};
 
   const getStatusConfig = (status) => {
     const configs = {
@@ -107,11 +150,38 @@ return (
   <div className="px-6 pt-6 pb-20">
 
       {/* Header */}
-      <div className="mb-12">
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-fuchsia-400 to-purple-500 bg-clip-text text-transparent">
-          Application Status
-        </h1>
-        <p className="text-slate-400 mt-2">Track all your job applications</p>
+      <div className="mb-12 flex justify-between items-start gap-6">
+
+        <div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-fuchsia-400 to-purple-500 bg-clip-text text-transparent">
+            Application Status
+          </h1>
+          <p className="text-slate-400 mt-2">
+            Track all your job applications
+          </p>
+        </div>
+
+       
+        <div className="flex items-start">
+        <button
+          onClick={() => setInviteModal(true)}
+          className="relative px-6 py-2 rounded-xl
+          bg-gradient-to-r from-purple-500 to-cyan-400
+          text-white font-semibold
+          shadow-[0_0_25px_rgba(168,85,247,0.7)]
+          hover:scale-105 transition"
+        >
+          Interview Invite
+
+          <span className="absolute -top-2 -right-2 
+                          bg-red-500 text-white 
+                          text-xs px-2 py-0.5 
+                          rounded-full">
+            {interviewInvites.length}
+          </span>
+        </button>
+      </div>
+      
       </div>
 
       {/* Stats */}
@@ -272,6 +342,109 @@ return (
           </div>
         </div>
       )}
+
+      {inviteModal && (
+  <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-start justify-center pt-20 z-50">
+
+    <div className="bg-[#070017] border border-purple-500/40 rounded-3xl p-8 w-full max-w-2xl shadow-[0_0_40px_rgba(129,140,248,0.4)]">
+
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-fuchsia-400">
+          Interview Invitations
+        </h2>
+
+        <button
+          onClick={() => setInviteModal(false)}
+          className="text-slate-400 hover:text-white"
+        >
+          <X/>
+        </button>
+      </div>
+
+      <div className="space-y-4 max-h-[400px] overflow-y-auto">
+
+        {interviewInvites.map((invite) => (
+
+          <div
+            key={invite._id}
+            className="border border-purple-500/30 rounded-xl p-4 bg-purple-500/5"
+          >
+
+            <div className="flex justify-between items-start">
+
+              <div className="space-y-2 text-sm">
+
+                <div className="flex gap-2 items-center text-white">
+                  <Building2 size={16}/>
+                  {invite.companyName}
+                </div>
+
+                <div className="flex gap-2 items-center text-slate-300">
+                  <Briefcase size={16}/>
+                  {invite.role}
+                </div>
+
+                <div className="flex gap-2 items-center text-slate-300">
+                  <Calendar size={16}/>
+                  {new Date(invite.scheduledAt).toLocaleString()}
+                </div>
+
+              </div>
+
+              {/* Status */}
+              <span className={`text-xs px-3 py-1 rounded-full
+                ${
+                  invite.status === "accepted"
+                    ? "bg-emerald-500/20 text-emerald-400"
+                    : invite.status === "rejected"
+                    ? "bg-red-500/20 text-red-400"
+                    : "bg-yellow-500/20 text-yellow-400"
+                }`}
+              >
+                {invite.status}
+              </span>
+
+            </div>
+
+            {/* Actions */}
+            {true && (
+              <div className="flex gap-3 mt-4">
+
+                <button
+                  onClick={() => respondInterview("accepted", invite._id)}
+                  className="flex-1 py-2 rounded-xl 
+                    bg-emerald-500 text-white 
+                    hover:bg-emerald-600
+                    shadow-[0_0_15px_rgba(16,185,129,0.5)]
+                    transition"
+                >
+                  Accept
+                </button>
+
+                <button
+                  onClick={() => respondInterview("rejected", invite._id)}
+                  className="flex-1 py-2 rounded-xl 
+                      bg-red-500 text-white 
+                      hover:bg-red-600
+                      shadow-[0_0_15px_rgba(239,68,68,0.5)]
+                      transition"
+                >
+                  Reject
+                </button>
+
+              </div>
+            )}
+
+          </div>
+
+        ))}
+
+      </div>
+
+    </div>
+
+  </div>
+)}
     </div>
   );
 };
