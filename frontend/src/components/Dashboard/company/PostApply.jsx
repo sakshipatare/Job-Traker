@@ -1,7 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Briefcase, MapPin, DollarSign, Zap, FileText, Check, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
+
+const SKILL_SUGGESTIONS = [
+  "JavaScript",
+  "React",
+  "Node.js",
+  "Express",
+  "MongoDB",
+  "C++",
+  "Java",
+  "Python",
+  "HTML",
+  "CSS",
+  "Tailwind",
+  "MySQL",
+  "Git",
+  "AWS",
+  "Firebase",
+];
 
  const InputField = ({ icon: Icon, label, ...props }) => (
   <div>
@@ -21,7 +39,7 @@ const PostJob = () => {
     title: "",
     location: "",
     salary: "",
-    skills: "",
+    skills: [],
     description: "",
     deadline: ""
   });
@@ -29,6 +47,8 @@ const PostJob = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [skillInput, setSkillInput] = useState("");
+  const [filteredSuggestions, setFilteredSuggestions] = useState([]);
 
   const token = localStorage.getItem("token");
 
@@ -59,9 +79,7 @@ const PostJob = () => {
           description: formData.description,
           salary: formData.salary ? Number(formData.salary) : undefined,
           deadline: formData.deadline,
-          skills: formData.skills
-            .split(",")
-            .map(skill => skill.trim())
+          skills: formData.skills,
         })
       });
 
@@ -73,7 +91,7 @@ const PostJob = () => {
           title: "",
           location: "",
           salary: "",
-          skills: "",
+          skills: [],
           description: "",
           deadline: ""
         });
@@ -89,6 +107,40 @@ const PostJob = () => {
       setIsSubmitting(false);
     }
   };
+
+  useEffect(() => {
+  if (!skillInput.trim()) {
+    setFilteredSuggestions([]);
+    return;
+  }
+
+  const filtered = SKILL_SUGGESTIONS.filter(
+    (skill) =>
+      skill.toLowerCase().includes(skillInput.toLowerCase()) &&
+      !formData.skills.includes(skill)
+  );
+
+  setFilteredSuggestions(filtered);
+}, [skillInput, formData.skills]);
+
+const addSkill = (skill) => {
+  if (!formData.skills.includes(skill)) {
+    setFormData((prev) => ({
+      ...prev,
+      skills: [...prev.skills, skill],
+    }));
+  }
+
+  setSkillInput("");
+  setFilteredSuggestions([]);
+};
+
+const removeSkill = (skillToRemove) => {
+  setFormData((prev) => ({
+    ...prev,
+    skills: prev.skills.filter((skill) => skill !== skillToRemove),
+  }));
+};
 
   return (
   <div className="relative px-6 pt-4 pb-20">
@@ -178,14 +230,64 @@ const PostJob = () => {
             placeholder="Enter yearly salary"
           />
 
-          <InputField
-            icon={Zap}
-            label="Required Skills"
-            name="skills"
-            value={formData.skills}
-            onChange={handleChange}
-            placeholder="React, Node.js, MongoDB"
-          />
+          <div>
+            <label className="text-sm text-slate-300 mb-2 flex items-center gap-2">
+              <Zap className="w-4 h-4 text-fuchsia-300" />
+              Required Skills
+            </label>
+
+            {/* Selected Skills */}
+            <div className="flex flex-wrap gap-2 mb-3">
+              {formData.skills.map((skill, index) => (
+                <span
+                  key={index}
+                  className="px-3 py-1 bg-cyan-500/10 border border-cyan-400/40 
+                  text-cyan-300 rounded-xl text-sm flex items-center gap-2"
+                >
+                  {skill}
+                  <button
+                    type="button"
+                    onClick={() => removeSkill(skill)}
+                    className="text-red-400 hover:text-red-500"
+                  >
+                    ✕
+                  </button>
+                </span>
+              ))}
+            </div>
+
+            {/* Input */}
+            <input
+              type="text"
+              value={skillInput}
+              onChange={(e) => setSkillInput(e.target.value)}
+              placeholder="Type a skill..."
+              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-purple-500/30 
+              focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-500/40 
+              outline-none text-slate-200 placeholder-slate-400 transition-all"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && skillInput.trim()) {
+                  e.preventDefault();
+                  addSkill(skillInput.trim());
+                }
+              }}
+            />
+
+            {/* Suggestions */}
+            {filteredSuggestions.length > 0 && (
+              <div className="mt-2 bg-[#120224] border border-purple-500/40 rounded-xl shadow-lg max-h-40 overflow-y-auto">
+                {filteredSuggestions.map((suggestion, index) => (
+                  <div
+                    key={index}
+                    onClick={() => addSkill(suggestion)}
+                    className="px-4 py-2 hover:bg-cyan-400/10 cursor-pointer text-slate-300"
+                  >
+                    {suggestion}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         <div>
