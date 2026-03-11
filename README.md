@@ -228,19 +228,19 @@ git clone https://github.com/your-username/job-tracker.git
 cd job-tracker
 ```
 
-##2️⃣ Install Backend Dependencies
+## 2️⃣ Install Backend Dependencies
 ```bash
 cd backend
 npm install
 ```
 
-##3️⃣ Install Frontend Dependencies
+## 3️⃣ Install Frontend Dependencies
 ```bash
 cd frontend
 npm install
 ```
 
-##4️⃣ Setup Environment Variables
+## 4️⃣ Setup Environment Variables
 Create a .env file in the backend folder:
 ```bash
 PORT=5000
@@ -251,18 +251,18 @@ EMAIL_USER=your_email
 EMAIL_PASS=your_email_password
 ```
 
-##5️⃣ Run Backend
+## 5️⃣ Run Backend
 ```bash
 npm run dev
 ```
 
-##6️⃣ Run Frontend
+## 6️⃣ Run Frontend
 ```bash
 npm start
 ```
 
 # 🔮 Future Improvements
-##Possible future enhancements:
+## Possible future enhancements:
 - AI-based resume analysis
 - Job recommendation system
 - Multi-company interview panels
@@ -274,3 +274,4 @@ npm start
 
 **Sakshi Patare
 Full Stack Developer**
+
